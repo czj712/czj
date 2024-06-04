@@ -1,0 +1,59 @@
+import torch
+from datasets import load_dataset
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from trl import SFTTrainer
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
+
+# 加载数据集
+data = load_dataset("data.json", split='train')
+data = data.shuffle(seed=1234)  # 打乱数据集
+tokenizer = AutoTokenizer.from_pretrained("/usr/share/ollama/.ollama/models/blobs/mistral-7b")
+data = data.map(lambda samples: tokenizer(samples["prompt"]), batched=True)
+data = data.train_test_split(test_size=0.1)
+train_data = data["train"]
+test_data = data["test"]
+
+# 加载预训练的 Mistral-7B 模型
+model = AutoModelForCausalLM.from_pretrained("/usr/share/ollama/.ollama/models/blobs/mistral-7b")
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
+
+# PeFT 配置
+lora_config = LoraConfig(
+    r=8,
+    lora_alpha=32,
+    target_modules=["q_proj", "v_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+# 准备模型进行 k 位训练
+model = prepare_model_for_kbit_training(model)
+
+# 添加 Lora 适配器
+model.add_adapter(lora_config, adapter_name="adapter")
+
+# 初始化 Trainer
+trainer = SFTTrainer(
+    model=model,
+    train_dataset=train_data,
+    eval_dataset=test_data,
+    dataset_text_field="prompt",
+    peft_config=lora_config,
+    args=transformers.TrainingArguments(
+        per_device_train_batch_size=1,
+        gradient_accumulation_steps=4,
+        warmup_steps=0.03,
+        max_steps=100,
+        learning_rate=2e-4,
+        logging_steps=1,
+        output_dir="outputs",
+        optim="paged_adamw_8bit",
+        save_strategy="epoch",
+    ),
+    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+)
+
+# 训练模型
+trainer.train()

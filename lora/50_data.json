@@ -1,0 +1,252 @@
+[
+  {
+    "instruction": "Please simulate consumer 'Amazon Customer' to comment on the product 'Cuisinart CRC-400P1 4 Cup Rice Cooker, Stainless Steel Exterior'. No more than 20 words. Product price: 49.99; Brand: Cuisinart; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "Modern look: It was for a gift. They love it."
+  },
+  {
+    "instruction": "Please simulate consumer 'Sandra Pawley ' to comment on the product 'Cuisinart Food Processor, Mini-Prep 3 Cup, 24 oz, Brushed Chrome and Nickel, DLC-2ABC'. No more than 20 words. Product price: 39.95; Brand: Cuisinart; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Food Processors'. ",
+    "input": "",
+    "output": "Easy to use and affordable !: Love this so much I’ve bought 2 . I gave one to my daughter and she loves it . We use this on a regular basis."
+  },
+  {
+    "instruction": "Please simulate consumer 'Margie' to comment on the product 'Presto Salad Shooter Electric Slicer/Shredder,White'. No more than 20 words. Product price: 49.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Slicers'. ",
+    "input": "",
+    "output": "Perfect for my needs.: Ordered to shred cheese.  Great for the job. Also easily shreds hardboiled eggs. Cleaning is a breeze."
+  },
+  {
+    "instruction": "Please simulate consumer 'Pamela Moore' to comment on the product 'Proctor Silex Easy Slice Electric Knife for Carving Meats, Poultry, Bread, Crafting Foam and More, Lightweight with Contoured Grip, White'. No more than 20 words. Product price: 19.61; Brand: Proctor Silex; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Knives'. ",
+    "input": "",
+    "output": "Wouldn't purchase again.: Difficult to use"
+  },
+  {
+    "instruction": "Please simulate consumer 'CdA Ringleader' to comment on the product 'FoodSaver 1-Pint Precut Vacuum Seal Bags with BPA-Free Multilayer Construction for Food Preservation, 28 Count, Clear'. No more than 20 words. Product price: 12.99; Brand: FOODSAVER; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Vacuum Sealer Bags'. ",
+    "input": "",
+    "output": "Same ones you buy in the store: Easy to use, still a great product"
+  },
+  {
+    "instruction": "Please simulate consumer 'Greg Batenchuk' to comment on the product 'KitchenAid Classic Series 4.5 Quart Tilt-Head Stand Mixer K45SS, White'. No more than 20 words. Product price: 306.99; Brand: KitchenAid; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Mixers:Stand Mixers'. ",
+    "input": "",
+    "output": "Kitchen aid blender is awesome: Everything kitchen aid is awesome I can't get wife out of the kitchen"
+  },
+  {
+    "instruction": "Please simulate consumer 'Kindle Customer' to comment on the product 'Proctor Silex Durable Electric Vegetable Chopper &amp; Mini Food Processor for Chopping, Puree &amp; Emulsify, 1.5 Cup, White'. No more than 20 words. Product price: 14.99; Brand: Proctor Silex; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Food Processors'. ",
+    "input": "",
+    "output": "Good chopper: Great size for small apartment. Gets job done. As advertised."
+  },
+  {
+    "instruction": "Please simulate consumer 'Richard McBride' to comment on the product 'Cuisinart Fondue Pot, 3 Quart, For Chocolate, Cheese, Broth, Oil, Stainless Steel, CFO-3SSP1'. No more than 20 words. Product price: 63.08; Brand: Cuisinart; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Electric Fondue Pots'. ",
+    "input": "",
+    "output": "Brings the '70s Back: When my girl and I turned up at the neighborhood key party with the Cuisinart Electric Fondue pot, everyone was delighted and felt the fondue really brought the 1970s back! Unfortunately, when I picked a random set of keys from the bowl, they belonged to a woman who really had fond memories of actual 1970s key parties."
+  },
+  {
+    "instruction": "Please simulate consumer 'Maggy's Mom 57' to comment on the product 'FoodSaver 1-Pint Precut Vacuum Seal Bags with BPA-Free Multilayer Construction for Food Preservation, 28 Count, Clear'. No more than 20 words. Product price: 12.99; Brand: FOODSAVER; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Vacuum Sealer Bags'. ",
+    "input": "",
+    "output": "Great buy!: Saves on those smaller portions of food. We package our food for two, so the size of this bag works out great!"
+  },
+  {
+    "instruction": "Please simulate consumer 'Norman K. Clark' to comment on the product 'Presto 04821 Orville Redenbacher's Hot Air Popper, 1 Liters, White'. No more than 20 words. Product price: 39.61; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Popcorn Poppers'. ",
+    "input": "",
+    "output": "Lasted less than 13 months -- fewer than 50 uses: Although this popper worked reasonably well at first, it stopped after less than 13 months and fewer than 50 uses."
+  },
+  {
+    "instruction": "Please simulate consumer 'D. Somers' to comment on the product 'Presto 07211 Liddle Griddle'. No more than 20 words. Product price: 40.86; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Indoor Grills & Griddles:Electric Griddles'. ",
+    "input": "",
+    "output": "It works great for that and the size is really nice given ...: I use this to heat beeswax for encaustic painting.  It works great for that and the size is really nice given the smaller table I work on when doing encaustics.  Because beeswax will smoke when overheated I keep a flat thermometer on it and it has had a consistent, controllable temperature so it should be good for cooking."
+  },
+  {
+    "instruction": "Please simulate consumer 'Dailia A Jackson' to comment on the product 'Breville Juice Fountain Elite Juicer, Brushed Stainless Steel, 800JEXL'. No more than 20 words. Product price: 290.95; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "It works well: It completes the process it's used for"
+  },
+  {
+    "instruction": "Please simulate consumer 'Melissa Kozik' to comment on the product 'Presto 02970 Professional SaladShooter Electric Slicer/Shredder, Black,1 count'. No more than 20 words. Product price: 73.49; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Slicers'. ",
+    "input": "",
+    "output": "Fantastic -strong chopper: Excellent chopper and easy to clean!"
+  },
+  {
+    "instruction": "Please simulate consumer 'Amazon Customer' to comment on the product 'Breville Juice Fountain Elite Juicer, Brushed Stainless Steel, 800JEXL'. No more than 20 words. Product price: 290.95; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "not working: This is my second unit in two weeks that has not worked. This unit just hums and won't spin."
+  },
+  {
+    "instruction": "Please simulate consumer 'AlexG' to comment on the product 'Zojirushi NS-ZCC10 Neuro Fuzzy Cooker, 5.5-Cup uncooked rice / 1L, White'. No more than 20 words. Product price: 209.99; Brand: Zojirushi; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "Five Stars: Excellent rice cooker. easy to use. just the right size for a single person or a small family."
+  },
+  {
+    "instruction": "Please simulate consumer 'Summer' to comment on the product 'Proctor Silex Durable Electric Vegetable Chopper &amp; Mini Food Processor for Chopping, Puree &amp; Emulsify, 1.5 Cup, White'. No more than 20 words. Product price: 14.99; Brand: Proctor Silex; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Food Processors'. ",
+    "input": "",
+    "output": "not working very well: I used this mini blender to chop fruits for my baby. It doesn't work very well for solid food such as strawberry because food will stuck on the wall. Blades can hardly touch it. so I need to manually scape the food off. It works well with liquid fruit , such as orange, squash etc."
+  },
+  {
+    "instruction": "Please simulate consumer 'Lisa Bruner' to comment on the product 'Presto 05411 GranPappy Electric Deep Fryer'. No more than 20 words. Product price: 51.03; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Fryers:Deep Fryers'. ",
+    "input": "",
+    "output": "Great best deep fryer ever: Love it"
+  },
+  {
+    "instruction": "Please simulate consumer 'Janet' to comment on the product 'Presto Salad Shooter Electric Slicer/Shredder,White'. No more than 20 words. Product price: 49.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Slicers'. ",
+    "input": "",
+    "output": "Simple and easy to use: I use this to shred my soaps, it works great and is such a time saver!"
+  },
+  {
+    "instruction": "Please simulate consumer 'Amazon Customer' to comment on the product 'Proctor Silex Easy Slice Electric Knife for Carving Meats, Poultry, Bread, Crafting Foam and More, Lightweight with Contoured Grip, White'. No more than 20 words. Product price: 19.61; Brand: Proctor Silex; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Knives'. ",
+    "input": "",
+    "output": "... does not work well and slicing is not very good. I would like to return it and get ...: Switch does not work well and slicing is not very good . I would like to return it and get abetter one. Please  HELO. Thank You."
+  },
+  {
+    "instruction": "Please simulate consumer 'Della Akard' to comment on the product 'FoodSaver 1-Pint Precut Vacuum Seal Bags with BPA-Free Multilayer Construction for Food Preservation, 28 Count, Clear'. No more than 20 words. Product price: 12.99; Brand: FOODSAVER; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Vacuum Sealer Bags'. ",
+    "input": "",
+    "output": "Great Size: Just the size to hold a pound  of ground beef in each."
+  },
+  {
+    "instruction": "Please simulate consumer 'Big Ben' to comment on the product 'Zojirushi NS-ZCC10 Neuro Fuzzy Cooker, 5.5-Cup uncooked rice / 1L, White'. No more than 20 words. Product price: 209.99; Brand: Zojirushi; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "think about whether or not you will use it: It sounded great but I never used it. It is still in the box a year later.  I wish I could return it.  Before you buy it, think about whether or not you will use it.  Don't waste your money like me."
+  },
+  {
+    "instruction": "Please simulate consumer 'Mackenzie Clare' to comment on the product 'Breville Juice Fountain Elite Juicer, Brushed Stainless Steel, 800JEXL'. No more than 20 words. Product price: 290.95; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Five Stars: All good"
+  },
+  {
+    "instruction": "Please simulate consumer 'Goonster' to comment on the product 'Presto Salad Shooter Electric Slicer/Shredder,White'. No more than 20 words. Product price: 49.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Slicers'. ",
+    "input": "",
+    "output": "Like a veggie gun.: Quite useful and fun. Can sort of point and shoot where to aim your carrot or veggies slices. Con is that the carrots and such stain the product. Cleaning is not hard but it would take a lot of work to get the stains out."
+  },
+  {
+    "instruction": "Please simulate consumer 'Jonathan Matt' to comment on the product 'Cuisinart CRC-400P1 4 Cup Rice Cooker, Stainless Steel Exterior'. No more than 20 words. Product price: 49.99; Brand: Cuisinart; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "Big Mess: If you follow the instructions you will have a pool of very difficult to clean starch water all over your counter top and cooker.  When I contacted Cuisinart about this I was basically told to get lost.  Beware; this is a defective product!"
+  },
+  {
+    "instruction": "Please simulate consumer 'Mojojo' to comment on the product 'Zojirushi NS-ZCC10 Neuro Fuzzy Cooker, 5.5-Cup uncooked rice / 1L, White'. No more than 20 words. Product price: 209.99; Brand: Zojirushi; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "Always a fan of zojirushi rice cooker: I have had a zojirushi rice cooker for years. Finally needed to get it replaced because of the inner pot. It was pointless to just replace the inner pot when Black Friday deals were going on. So, I updated to a newer model. My rice always come out soft and fluffy."
+  },
+  {
+    "instruction": "Please simulate consumer 'Robert N' to comment on the product 'Cuisinart CRC-400P1 4 Cup Rice Cooker, Stainless Steel Exterior'. No more than 20 words. Product price: 49.99; Brand: Cuisinart; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "It does the job no complaints. This my second one ,my first one lasted a little more than six years: It cooks rice ,I like it what can I say . No complaints"
+  },
+  {
+    "instruction": "Please simulate consumer 'Linda' to comment on the product 'Presto 04830 PowerPop Microwave Multi-Popper, Black'. No more than 20 words. Product price: 24.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Popcorn Poppers'. ",
+    "input": "",
+    "output": "Easy to use: Works really well and allows popcorn to be a healthy snack"
+  },
+  {
+    "instruction": "Please simulate consumer 'Sandra Zielsdorf' to comment on the product 'Presto 04830 PowerPop Microwave Multi-Popper, Black'. No more than 20 words. Product price: 24.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Popcorn Poppers'. ",
+    "input": "",
+    "output": "Do not buy this new version: This is not like the original.  I bought this to replace one we had for many years and developed a small crack.  I regret throwing that one away... this one is terrible.  The plastic used is thinner and every batch we make burns the insert."
+  },
+  {
+    "instruction": "Please simulate consumer 'Bar' to comment on the product 'BLACK+DECKER G48TD Waffle Maker, 3-in-1, Silver'. No more than 20 words. Product price: 69.99; Brand: BLACK+DECKER; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Waffle Irons'. ",
+    "input": "",
+    "output": "hazzardous: when you open it the top plate falls out.  cant figure out how to make it stay.  the bracket that is supposed to hold I in place is too flimsy"
+  },
+  {
+    "instruction": "Please simulate consumer 'Abigail A Gonzalez' to comment on the product 'Presto Salad Shooter Electric Slicer/Shredder,White'. No more than 20 words. Product price: 49.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Slicers'. ",
+    "input": "",
+    "output": "It’s just Ok.: It was just OK for I couldn’t get my fruits and vegetables to be thicker. It was only able to make them super thin."
+  },
+  {
+    "instruction": "Please simulate consumer 'Pat' to comment on the product 'BLACK+DECKER G48TD Waffle Maker, 3-in-1, Silver'. No more than 20 words. Product price: 69.99; Brand: BLACK+DECKER; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Waffle Irons'. ",
+    "input": "",
+    "output": "Disappointing: Uneven heating.  Edges and top are not cooked but bottom is overcooked.  Problem looks like the clip that holds the upper plate is not tight enough.  Looks like the heating element does not get close enough to the plate to heat it.  Perhaps that is why the edges of the waffles are not cooked.  Very, very disappointing.  Only good thing is that it is easy to clean.  So sorry I spent that much on something that does not work."
+  },
+  {
+    "instruction": "Please simulate consumer 'mary' to comment on the product 'Breville Juice Fountain Compact Juicer, Silver, BJE200XL, 10&quot; x 10.5&quot; x 16&quot;'. No more than 20 words. Product price: 138.07; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Five stars: Love it perfect for my family"
+  },
+  {
+    "instruction": "Please simulate consumer 'J KIM' to comment on the product 'Breville Juice Fountain Elite Juicer, Brushed Stainless Steel, 800JEXL'. No more than 20 words. Product price: 290.95; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Recommend: This is the first time use. I like it overall."
+  },
+  {
+    "instruction": "Please simulate consumer 'Kindle Customer' to comment on the product 'Aroma Housewares ASP-137 Grillet 3Qt. 3-in-1 Cool-Touch Electric Indoor Grill Portable, Dishwasher Safe, 3-Quart, White'. No more than 20 words. Product price: 31.1; Brand: Aroma Housewares; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Indoor Grills & Griddles:Electric Grills'. ",
+    "input": "",
+    "output": "Five Stars: Very easy to use and truly a three in one appliance"
+  },
+  {
+    "instruction": "Please simulate consumer 'Chris Donahue' to comment on the product 'Presto 04830 PowerPop Microwave Multi-Popper, Black'. No more than 20 words. Product price: 24.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Popcorn Poppers'. ",
+    "input": "",
+    "output": "Pop corn: The top warped after first wash be top shelf of dishwasher."
+  },
+  {
+    "instruction": "Please simulate consumer 'Larry P ' to comment on the product 'Presto 04821 Orville Redenbacher's Hot Air Popper, 1 Liters, White'. No more than 20 words. Product price: 39.61; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Popcorn Poppers'. ",
+    "input": "",
+    "output": "Really good machine!: This cool looking popper does the job. I filled the tray with kernels,  poured it in the hole, put butter in the tray , plugged it in and in 3 minutes my HUGE bowl was filled with popcorn! Worked like a charm and fast! Easy clean! Powerful! Can't beat it! Very Satisfied!"
+  },
+  {
+    "instruction": "Please simulate consumer 'Arianna' to comment on the product 'Magic Bullet Blender, Small, Silver, 11 Piece Set'. No more than 20 words. Product price: 39.88; Brand: Magic Bullet; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Blenders:Countertop Blenders'. ",
+    "input": "",
+    "output": "Need to make a smoothie ? Maybe a shake?: This item was in the warehouse and on clearance so to speak! So it was a great deal! Works great easy to use and easy for the quick morning shakes, afternoon smoothies or just a quick shake for the kids! It even works to blend up small pieces of food, ginger, garlic etc! This is a plug in type of \"blender\" so will need an outlet to use but over all great product and love the easy to make smoothies and shakes!! Its a must try!!"
+  },
+  {
+    "instruction": "Please simulate consumer 'A.C.Rush' to comment on the product 'Breville Juice Fountain Compact Juicer, Silver, BJE200XL, 10&quot; x 10.5&quot; x 16&quot;'. No more than 20 words. Product price: 138.07; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Easy to use: Bought it for my parents and they really like it - easy to use and to clean"
+  },
+  {
+    "instruction": "Please simulate consumer 'Shervin' to comment on the product 'Breville Juice Fountain Compact Juicer, Silver, BJE200XL, 10&quot; x 10.5&quot; x 16&quot;'. No more than 20 words. Product price: 138.07; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Not worth it: After 2 month the the blades are not sharp any more. You have to squeeze the vegetables waste by hand again to get all the juices. Also after 5-6 time you cane see leaks when you juicing. Delivery was fast."
+  },
+  {
+    "instruction": "Please simulate consumer 'm' to comment on the product 'Presto Poplite 04820 Popper, 1 Size, yellow'. No more than 20 words. Product price: 29.99; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Popcorn Poppers'. ",
+    "input": "",
+    "output": "I used measuring device provided.  Produced way too much volume for my liking.: Messy if you use melted butter.  If you don't use butter the salt falls to the bottom of the bowl."
+  },
+  {
+    "instruction": "Please simulate consumer 'JJ Harris' to comment on the product 'Presto 05411 GranPappy Electric Deep Fryer'. No more than 20 words. Product price: 51.03; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Fryers:Deep Fryers'. ",
+    "input": "",
+    "output": "Oil gets too hot. There is no light to let u know oil is ready: Oil gets too hot and burns. It would be helpful to have a light indicating oil is ready like all my other Fry Daddy’s have had."
+  },
+  {
+    "instruction": "Please simulate consumer 'BETH HUTCHERSON' to comment on the product 'Proctor Silex Easy Slice Electric Knife for Carving Meats, Poultry, Bread, Crafting Foam and More, Lightweight with Contoured Grip, White'. No more than 20 words. Product price: 19.61; Brand: Proctor Silex; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Electric Utensils:Electric Knives'. ",
+    "input": "",
+    "output": "Reliability and sustainability: Used it 4 time and stopped working."
+  },
+  {
+    "instruction": "Please simulate consumer 'GuyB' to comment on the product 'Cuisinart Fondue Pot, 3 Quart, For Chocolate, Cheese, Broth, Oil, Stainless Steel, CFO-3SSP1'. No more than 20 words. Product price: 63.08; Brand: Cuisinart; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Electric Fondue Pots'. ",
+    "input": "",
+    "output": "Nice Fondue Set: The pot itself is great, temp control and size of pot is nice. Wishing it had a domed bottom so the forks didn’t slide around. The forks themselves leave a lot to be desired. Food kept falling off the forks so I ended up using my old set of forks."
+  },
+  {
+    "instruction": "Please simulate consumer 'Xiaofang Zhang' to comment on the product 'Zojirushi NS-ZCC10 Neuro Fuzzy Cooker, 5.5-Cup uncooked rice / 1L, White'. No more than 20 words. Product price: 209.99; Brand: Zojirushi; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Rice Cookers'. ",
+    "input": "",
+    "output": "Five Stars: Good product."
+  },
+  {
+    "instruction": "Please simulate consumer 'M M' to comment on the product 'Breville Juice Fountain Elite Juicer, Brushed Stainless Steel, 800JEXL'. No more than 20 words. Product price: 290.95; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Good extractor: Good machine does the job alright , not the best though."
+  },
+  {
+    "instruction": "Please simulate consumer 'Sarah ' to comment on the product 'Magic Bullet Blender, Small, Silver, 11 Piece Set'. No more than 20 words. Product price: 39.88; Brand: Magic Bullet; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Blenders:Countertop Blenders'. ",
+    "input": "",
+    "output": "Stopped working after a month!!: So disappointed in this product. It stopped working after maybe 10 uses."
+  },
+  {
+    "instruction": "Please simulate consumer 'SF Native' to comment on the product 'FoodSaver 1-Pint Precut Vacuum Seal Bags with BPA-Free Multilayer Construction for Food Preservation, 28 Count, Clear'. No more than 20 words. Product price: 12.99; Brand: FOODSAVER; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Specialty Appliances:Vacuum Sealer Bags'. ",
+    "input": "",
+    "output": "Five Stars: great"
+  },
+  {
+    "instruction": "Please simulate consumer 'SCMEx' to comment on the product 'Breville Juice Fountain Elite Juicer, Brushed Stainless Steel, 800JEXL'. No more than 20 words. Product price: 290.95; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "We absolutely love this Juicer: We absolutely love this Juicer! Excellent built, easy to wash, we also bought the Bio degradable bags. We store the pulp/fiber and use for soups"
+  },
+  {
+    "instruction": "Please simulate consumer 'Amazon Customer' to comment on the product 'Breville Juice Fountain Compact Juicer, Silver, BJE200XL, 10&quot; x 10.5&quot; x 16&quot;'. No more than 20 words. Product price: 138.07; Brand: Breville; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Juicers:Centrifugal Juicers'. ",
+    "input": "",
+    "output": "Hard: Product box came damaged . Leaks when using"
+  },
+  {
+    "instruction": "Please simulate consumer 'J. Peterson' to comment on the product 'Presto 07211 Liddle Griddle'. No more than 20 words. Product price: 40.86; Brand: Presto; NodeLabelPath: 'Home & Kitchen:Kitchen & Dining:Small Appliances:Indoor Grills & Griddles:Electric Griddles'. ",
+    "input": "",
+    "output": "Easy to use and clean: Really enjoy cooking breakfast on this griddle.  It has worked perfectly so far.  Nice size for two!"
+  }
+]
