@@ -1,6 +1,6 @@
 import json 
 
-with open("/home/ubuntu/czjDataSetsPrj/results.json") as file:
+with open("/users/u202220081001066/czj/czjDataSetsPrj/results.json") as file:
     data = json.load(file)
 
 user_comments = []
@@ -20,6 +20,6 @@ for user_data in data:
     user_comments.append(user_info)
 
 # 保存整理后的数据到文件
-with open("/home/ubuntu/formated_data.json", "w") as f:
+with open("/users/u202220081001066/czj/czjDataSetsPrj/formated_data.json", "w") as f:
     json.dump(user_comments, f)
 print("文件已保存完成！")
