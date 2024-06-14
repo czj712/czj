@@ -10,8 +10,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 )
 """
 # 加载模型和标记器
-model = AutoModelForCausalLM.from_pretrained("microsoft/Phi-3-mini-4k-instruct",device_map={"":0}, trust_remote_code=True, attn_implementation="flash_attention_2",torch_dtype=torch.bfloat16,)
-tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct", padding_side='left', trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained("LLM-Research/Phi-3-mini-4k-instruct",device_map={"":0}, trust_remote_code=True, attn_implementation="flash_attention_2",torch_dtype=torch.bfloat16,)
+tokenizer = AutoTokenizer.from_pretrained("LLM-Research/Phi-3-mini-4k-instruct", padding_side='left', trust_remote_code=True)
 
 def get_completion(query: str, model, tokenizer) -> str:
     device = "cuda" if torch.cuda.is_available() else "cpu"
