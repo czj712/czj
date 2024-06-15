@@ -4,10 +4,10 @@ import random
 
 # 设置文件路径
 file_paths = [
-    '/users/u202220081001066/datas/file1.jsonl',
-    '/users/u202220081001066/datas/file2.jsonl',
-    '/users/u202220081001066/datas/file3.jsonl',
-    '/users/u202220081001066/datas/file4.jsonl'
+    '/users/u202220081001066/datas/All_Beauty.jsonl',
+    '/users/u202220081001066/datas/Handmade_Products.jsonl',
+    '/users/u202220081001066/datas/Musical_Instruments.jsonl',
+    '/users/u202220081001066/datas/Software.jsonl'
 ]
 
 # 读取JSONL文件并提取数据
