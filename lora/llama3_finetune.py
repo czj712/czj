@@ -15,7 +15,7 @@ bnb_config = BitsAndBytesConfig(
         bnb_4bit_use_double_quant=True,
 )
 # 加载模型
-model_id = "/home/ubuntu/outputs/llama3_merged/"
+model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
     quantization_config=bnb_config,
     use_cache=False,
