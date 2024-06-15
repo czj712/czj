@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-proj-mdmzPQj95v6veal6O6SOT3BlbkFJuAOqFANXfhXZaqVNQs0R",
+    api_key="sk-proj-c3BbjBEQb5Xlqzff2tfJT3BlbkFJquzNSCeRh0wwLMOaTO4j",
 )
 
 def load_data(file_path):
@@ -33,7 +33,7 @@ Consumer({user_id})'s comments on products are: "{comments_str}"
     return response.choices[0].message.content.strip()
 
 def process_data():
-    data = load_data("/home/ubuntu/czjDataSetsPrj/formated_data_for_gpt.json")
+    data = load_data("/users/u202220081001066/czjDataSetsPrj/formated_data_for_gpt.json")
     results = []
     print("开始处理数据...")
 
@@ -53,7 +53,7 @@ def process_data():
                     
 
     # 将结果保存到JSON文件中
-    json_file_path = '/home/ubuntu/300_rp_gpt_outputs.json'
+    json_file_path = '/users/u202220081001066/czj/czjDataSetsPrj/300_rp_gpt_outputs.json'
     with open(json_file_path, 'w', encoding='utf-8') as json_file:
         json.dump(results, json_file, ensure_ascii=False, indent=4)
     print(f"数据已保存到 {json_file_path} 文件中。")
