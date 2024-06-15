@@ -42,7 +42,7 @@ for index, item in enumerate(sampled_data, 1):
         "display_fields": "user_id,text",
         "max_chars_len": 500,
         "order_by_helpfulvote": "true",
-        "max_len": 1
+        "max_len": 5
     }
     # 打印请求体
     print(f"Request payload: {json.dumps(payload, indent=2)}")
@@ -57,7 +57,7 @@ for index, item in enumerate(sampled_data, 1):
     print(f"Response: {json.dumps(result, indent=2)}")
 
 # 保存结果到JSON文件
-with open('/home/ubuntu/1comment_result.json', 'w') as f:
+with open('/home/ubuntu/5comment_result.json', 'w') as f:
     json.dump(results, f)
 
-print("All data processed and saved to 1comment_result.json.")
+print("All data processed and saved to 5comment_result.json.")
