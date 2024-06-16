@@ -2,8 +2,8 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.chatanywhere.tech/v1",
-    api_key="sk-AUznrYbwPbPiYpokF8Aeu1sPJhE36Dzx452bkOJRzr8IPxD6",
+    base_url="https://free.gpt.ge",
+    api_key="sk-0eb3qj6MQmUNXn632c0c499558354b4eB2243cF74dEe8a52",
 )
 
 def load_data(file_path):
@@ -45,8 +45,17 @@ According to consumer A (user_id: {user_id})'s comment information:
         results.append(result_dict)
         print(f"已处理用户 {user_id}。")
    """
+def save_results(results, file_path):
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(results, json_file, ensure_ascii=False, indent=4)
+    print(f"数据已保存到 {file_path} 文件中。")
+
+
 def process_data():
+    count = 0
+    save_interval = 100 
     data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
+    json_file_path = '/Users/zijianchen/Desktop/datas/single_review_rp_gpt_outputs.json'
     results = []
     print("开始处理数据...")
 
@@ -62,17 +71,19 @@ def process_data():
                 "output": user_profile
             }
             results.append(result_dict)
+            count += 1
             print(f"已处理用户 {user_id}。")
+            
+            if count % save_interval == 0:
+                save_results(results, json_file_path)
+                results.clear() 
         else:
             print("跳过空的 user_data。")
 
-                    
+    if results:
+        save_results(results, json_file_path)
 
-    # 将结果保存到JSON文件中
-    json_file_path = '/Users/zijianchen/Desktop/datas/single_review_rp_gpt_outputs.json'
-    with open(json_file_path, 'w', encoding='utf-8') as json_file:
-        json.dump(results, json_file, ensure_ascii=False, indent=4)
-    print(f"数据已保存到 {json_file_path} 文件中。")
+       
 
 if __name__ == "__main__":
     process_data()
