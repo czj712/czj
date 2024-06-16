@@ -3,7 +3,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="https://api.openai-proxy.org/v1",
-    api_key="sk-proj-c3BbjBEQb5Xlqzff2tfJT3BlbkFJquzNSCeRh0wwLMOaTO4j",
+    api_key="sk-AUznrYbwPbPiYpokF8Aeu1sPJhE36Dzx452bkOJRzr8IPxD6",
 )
 
 def load_data(file_path):
@@ -17,7 +17,7 @@ def generate_user_profile(review, user_id):
 According to consumer A(user_id:{user_id})'s comment information:\n  '{review}', What is the user portrait of consumer A?\n Just return a word. 
 '''
     response = client.chat.completions.create(
-        model="gpt-4",  # 使用适当的引擎
+        model="gpt-3.5-turbo",  # 使用适当的引擎
         messages=[
             {"role": "user", "content": prompt}
         ],
