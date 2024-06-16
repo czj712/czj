@@ -24,7 +24,7 @@ According to consumer A (user_id: {user_id})'s comment information:
         ],
         max_tokens=60
     )
-    user_profile = response.choices[0].message['content'].strip()
+    user_profile = response[choices][0][message]['content'].strip()
     print(f"用户 {user_id} 的评论为: '{review}' 生成的用户画像为: {user_profile}")
     return user_profile
 
