@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://free.gpt.ge.com/v1",
+    base_url="https://free.gpt.ge./v1",
     api_key="sk-0eb3qj6MQmUNXn632c0c499558354b4eB2243cF74dEe8a52",
 )
 
