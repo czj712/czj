@@ -25,7 +25,7 @@ According to consumer A (user_id: {user_id})'s comment information:
         max_tokens=60
     )
     print(f"用户{user_id}的评论为:'{review}' 生成的用户画像为: {response.choices[0].message.content.strip()}")
-    return response.choices[0].message.content.strip()
+    return response['choices'][0]['message']['content'].strip()
 
 """def process_data():
     data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
