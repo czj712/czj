@@ -2,6 +2,7 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
+    base_url="https://api.openai-proxy.org/v1",
     api_key="sk-proj-c3BbjBEQb5Xlqzff2tfJT3BlbkFJquzNSCeRh0wwLMOaTO4j",
 )
 
