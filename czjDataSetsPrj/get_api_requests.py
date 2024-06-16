@@ -5,11 +5,11 @@ import os
 
 # 设置文件路径和对应的类别
 file_paths = {
-    '/Users/zijianchen/Desktop/datas/All_Beauty.jsonl': 'All_Beauty',
-    '/Users/zijianchen/Desktop/datas/Video_Games.jsonl': 'Video_Games',
-    '/Users/zijianchen/Desktop/datas/Musical_Instruments.jsonl': 'Musical_Instruments',
-    '/Users/zijianchen/Desktop/datas/Software.jsonl': 'Software' , 
-    '/Users/zijianchen/Desktop/datas/Industrial_and_Scientific.jsonl': 'Industrial_and_Scientific' 
+    '/users/u202220081001066/datas/All_Beauty.jsonl': 'All_Beauty',
+    '/users/u202220081001066/datas/Video_Games.jsonl': 'Video_Games',
+    '/users/u202220081001066/datas/Musical_Instruments.jsonl': 'Musical_Instruments',
+    '/users/u202220081001066/datas/Software.jsonl': 'Software' , 
+    '/users/u202220081001066/datas/Industrial_and_Scientific.jsonl': 'Industrial_and_Scientific' 
 }
 
 # 读取JSONL文件并提取数据，同时添加category字段
@@ -58,7 +58,7 @@ for index, item in enumerate(sampled_data, 1):
     print(f"Response: {json.dumps(result, indent=2)}")
 
 # 保存结果到JSON文件
-with open('/Users/zijianchen/Desktop/datas/1comment_result.json', 'w') as f:
+with open('/users/u202220081001066/datas/1comment_result.json', 'w') as f:
     json.dump(results, f)
 
 print("All data processed and saved to 1comment_result.json.")
