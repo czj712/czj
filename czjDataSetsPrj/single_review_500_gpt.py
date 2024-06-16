@@ -27,7 +27,7 @@ According to consumer A(user_id:{user_id})'s comment information:\n  '{review}',
     return response.choices[0].message.content.strip()
 
 def process_data():
-    data = load_data("/users/u202220081001066/datas/1comment_result.json")
+    data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
     results = []
     print("开始处理数据...")
 
@@ -47,7 +47,7 @@ def process_data():
                     
 
     # 将结果保存到JSON文件中
-    json_file_path = '/users/u202220081001066/datas/single_review_rp_gpt_outputs.json'
+    json_file_path = '/Users/zijianchen/Desktop/datas/single_review_rp_gpt_outputs.json'
     with open(json_file_path, 'w', encoding='utf-8') as json_file:
         json.dump(results, json_file, ensure_ascii=False, indent=4)
     print(f"数据已保存到 {json_file_path} 文件中。")
