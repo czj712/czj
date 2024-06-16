@@ -14,7 +14,8 @@ def load_data(file_path):
 def generate_user_profile(review, user_id):
     # 根据给定的商品信息和评论生成用户画像的提示
     prompt = f'''
-According to consumer A(user_id:{user_id})'s comment information:\n  '{review}', What is the user portrait of consumer A?\n Just return a word. 
+According to consumer A(user_id:{user_id})'s comment information:\n  '{review}', What is the user portrait of consumer A?\n Just return a word without punctuation or other symbols
+. 
 '''
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",  # 使用适当的引擎
