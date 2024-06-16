@@ -15,7 +15,7 @@ def generate_user_profile(review, user_id):
     # 根据给定的商品信息和评论生成用户画像的提示
     prompt = f"""
 According to consumer A (user_id: {user_id})'s comment information:
-'{review}', what is the user profile of consumer A? Use a single descriptive word that reflects the user's characteristics based on their comment. Avoid generic terms like 'satisfied' or 'happy'. Just return a word without punctuation or other symbols.
+'{review}', what is the user profile of consumer A? Use a single descriptive word that reflects the user's characteristics based on their comment. Avoid generic terms like 'satisfied' or 'happy'.Instead, use more specific and descriptive words that capture unique characteristics of the user. Examples of such words include 'craftsman', 'enthusiast', 'connoisseur', 'novice', 'expert', etc. Just return a word without punctuation or other symbols.
 """
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",  # 使用适当的引擎
@@ -27,7 +27,7 @@ According to consumer A (user_id: {user_id})'s comment information:
     print(f"用户{user_id}的评论为:'{review}' 生成的用户画像为: {response.choices[0].message.content.strip()}")
     return response.choices[0].message.content.strip()
 
-def process_data():
+"""def process_data():
     data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
     results = []
     print("开始处理数据...")
@@ -38,13 +38,34 @@ def process_data():
         review = user_data[0]['text']
         user_profile = generate_user_profile(review, user_id)
         result_dict = {
-                    "instruction": f"According to consumer A (user_id: {user_id})'s comment information:'{review}'. What is the user profile of consumer A? Use a single descriptive word that reflects the user's characteristics based on their comment. Avoid generic terms like 'satisfied' or 'happy'. Just return a word without punctuation or other symbols. ",
+                    "instruction": f"According to consumer A (user_id: {user_id})'s comment information:'{review}'. What is the user profile of consumer A?  Just return a word without punctuation or other symbols. ",
                     "input": "",
                     "output": user_profile
                 }
         results.append(result_dict)
         print(f"已处理用户 {user_id}。")
-        
+   """
+def process_data():
+    data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
+    results = []
+    print("开始处理数据...")
+
+    # 为每一个用户生成用户画像，并保存到results列表中
+    for user_data in data:
+        if user_data:  # 确保 user_data 不是空的
+            user_id = user_data[0]['user_id']
+            review = user_data[0]['text']
+            user_profile = generate_user_profile(review, user_id)
+            result_dict = {
+                "instruction": f"According to consumer A (user_id: {user_id})'s comment information: '{review}'. What is the user profile of consumer A? Just return a word without punctuation or other symbols.",
+                "input": "",
+                "output": user_profile
+            }
+            results.append(result_dict)
+            print(f"已处理用户 {user_id}。")
+        else:
+            print("跳过空的 user_data。")
+
                     
 
     # 将结果保存到JSON文件中
