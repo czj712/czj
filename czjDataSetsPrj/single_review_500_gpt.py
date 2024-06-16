@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.openai-proxy.org/v1",
+    base_url="https://api.chatanywhere.tech/v1",
     api_key="sk-AUznrYbwPbPiYpokF8Aeu1sPJhE36Dzx452bkOJRzr8IPxD6",
 )
 
