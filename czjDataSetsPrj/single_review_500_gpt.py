@@ -2,8 +2,8 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://free.gpt.ge/v1",
-    api_key="sk-0eb3qj6MQmUNXn632c0c499558354b4eB2243cF74dEe8a52",
+    base_url="https://api.chatanywhere.tech/v1",
+    api_key="sk-AUznrYbwPbPiYpokF8Aeu1sPJhE36Dzx452bkOJRzr8IPxD6",
 )
 
 def load_data(file_path):
@@ -47,10 +47,20 @@ According to consumer A (user_id: {user_id})'s comment information:
         print(f"已处理用户 {user_id}。")
    """
 def save_results(results, file_path):
-    with open(file_path, 'w', encoding='utf-8') as json_file:
-        json.dump(results, json_file, ensure_ascii=False, indent=4)
-    print(f"数据已保存到 {file_path} 文件中。")
+    # 读取现有数据
+    try:
+        with open(file_path, 'r', encoding='utf-8') as json_file:
+            existing_data = json.load(json_file)
+    except FileNotFoundError:
+        existing_data = []
 
+    # 合并现有数据和新数据
+    existing_data.extend(results)
+
+    # 保存合并后的数据
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(existing_data, json_file, ensure_ascii=False, indent=4)
+    print(f"数据已保存到 {file_path} 文件中。")
 
 def process_data():
     count = 0
