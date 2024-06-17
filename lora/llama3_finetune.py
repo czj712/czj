@@ -37,7 +37,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_id, add_eos_token=True, use_fast
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.pad_token_id =  tokenizer.eos_token_id
 # 加载数据集
-data_file_path = "/home/ubuntu/czjDataSetsPrj/single_review_rp_gpt_outputs.json"
+data_file_path = "/users/u202220081001066/datas/single_review_rp_gpt_outputs.json"
 data = load_dataset("json",data_files=data_file_path)
 data = data.shuffle(seed=123)  # 打乱数据集
 def preprocess_function(samples):
@@ -65,7 +65,7 @@ model = prepare_model_for_kbit_training(model)
 # 添加 Lora 适配器
 model.add_adapter(lora_config, adapter_name="llama3_adapter")
 
-output_dir = "/home/ubuntu/outputs"
+output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
@@ -81,10 +81,10 @@ trainer = SFTTrainer(
     tokenizer=tokenizer,
     args=transformers.TrainingArguments(
         num_train_epochs= 10,
-        per_device_train_batch_size=2,
+        per_device_train_batch_size=4,
         gradient_accumulation_steps=4,
         warmup_steps=50,
-        max_steps=500,
+        max_steps=-1,
         learning_rate=1e-4,
         bf16=True,
         logging_steps=10,
