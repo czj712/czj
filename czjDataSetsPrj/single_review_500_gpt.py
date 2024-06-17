@@ -2,8 +2,8 @@ import json
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.chatanywhere.tech/v1",
-    api_key="sk-AUznrYbwPbPiYpokF8Aeu1sPJhE36Dzx452bkOJRzr8IPxD6",
+    base_url="https://free.gpt.ge/v1",
+    api_key="sk-0eb3qj6MQmUNXn632c0c499558354b4eB2243cF74dEe8a52",
 )
 
 def load_data(file_path):
@@ -28,24 +28,6 @@ According to consumer A (user_id: {user_id})'s comment information:
     print(f"用户 {user_id} 的评论为: '{review}' 生成的用户画像为: {user_profile}")
     return user_profile
 
-"""def process_data():
-    data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
-    results = []
-    print("开始处理数据...")
-
-    # 为每一个用户生成用户画像，并保存到results列表中
-    for user_data in data: 
-        user_id = user_data[0]['user_id']
-        review = user_data[0]['text']
-        user_profile = generate_user_profile(review, user_id)
-        result_dict = {
-                    "instruction": f"According to consumer A (user_id: {user_id})'s comment information:'{review}'. What is the user profile of consumer A?  Just return a word without punctuation or other symbols. ",
-                    "input": "",
-                    "output": user_profile
-                }
-        results.append(result_dict)
-        print(f"已处理用户 {user_id}。")
-   """
 def save_results(results, file_path):
     # 读取现有数据
     try:
@@ -64,7 +46,7 @@ def save_results(results, file_path):
 
 def process_data():
     count = 0
-    save_interval = 100 
+    save_interval = 50 
     data = load_data("/Users/zijianchen/Desktop/datas/1comment_result.json")
     json_file_path = '/Users/zijianchen/Desktop/datas/single_review_rp_gpt_outputs.json'
     results = []
