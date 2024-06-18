@@ -20,7 +20,7 @@ model = AutoModelForCausalLM.from_pretrained(model_id,
     quantization_config=bnb_config,
     use_cache=False,
     trust_remote_code=True,
-    attn_implementation="flash_attention_2",  # loading the model with flash-attenstion support
+    #attn_implementation="flash_attention_2",  # loading the model with flash-attenstion support
     torch_dtype=torch.bfloat16,
     device_map="auto")
 """try:
