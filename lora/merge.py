@@ -4,9 +4,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import os
 
 # 配置路径
-model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
-lora_path = "/home/ubuntu/outputs/llama3_adapter"
-merged_output_dir = "/home/ubuntu/outputs/llama3_merged"
+model_id = "/home/u202220081001066/llama3"
+lora_path = "/users/u202220081001066/outputs/llama3_adapter"
+merged_output_dir = "/users/u202220081001066/outputs/llama3_merged"
 
 # 加载原始模型
 print(f"Loading the base model from {model_id}")
@@ -29,6 +29,4 @@ model.save_pretrained(merged_output_dir)
 tokenizer = AutoTokenizer.from_pretrained(model_id,  padding_side='left', trust_remote_code=True)
 tokenizer.save_pretrained(merged_output_dir)
 
-model.push_to_hub("dickdiss/llama3_qlora_merged")
-tokenizer.push_to_hub("dickdiss/llama3_qlora_merged")
-
+print("已经成功合并lora模型。")
