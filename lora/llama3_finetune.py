@@ -72,9 +72,20 @@ output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
+def print_gpu_utilization(step):
+        allocated = torch.cuda.memory_allocated(device)
+        max_allocated = torch.cuda.max_memory_allocated(device)
+        print(f"Step {step}: GPU memory allocated: {allocated / (1024 ** 3):.2f}GB, Max GPU memory allocated: {max_allocated / (1024 **3):.2f} GB")
+
+class CustomTrainer(SFTTrainer):
+        def training_step(self, *args, **kwags):
+                step = self.state.global_step
+                result = super().training_step(*args, **kwargs)
+                print_gpu_utilization(step)
+                return result
 
 # 初始化 Trainer
-trainer = SFTTrainer(
+trainer = CustomSFTTrainer(
     model=model,
     train_dataset=train_data,
     eval_dataset=test_data,
