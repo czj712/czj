@@ -9,17 +9,18 @@ import json
 import wandb
 
 wandb.init(project="llama3_finetuning")
-# 使用QLoRA量化加载模型
+"""
 bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
         bnb_4bit_compute_dtype=torch.float16,
         bnb_4bit_use_double_quant=True,
 )
+quantization_config=bnb_config,
+"""
 # 加载模型
 model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
-    quantization_config=bnb_config,
     use_cache=False,
     trust_remote_code=True,
     #attn_implementation="flash_attention_2",  # loading the model with flash-attenstion support
