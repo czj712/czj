@@ -6,7 +6,9 @@ import transformers
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BitsAndBytesConfig
 import os
 import json
+import wandb
 
+wandb.init(project="llama3_finetuning")
 # 使用QLoRA量化加载模型
 bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -92,6 +94,7 @@ trainer = SFTTrainer(
         output_dir=output_dir,
         optim="paged_adamw_8bit",
         save_strategy="epoch",
+        report_to="wandb"
     ),
     data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
 )
@@ -106,3 +109,4 @@ if not os.path.exists(adapter_output_dir):
 
 trainer.model.save_pretrained(adapter_output_dir)
 tokenizer.save_pretrained(adapter_output_dir)
+wandb.finish()
