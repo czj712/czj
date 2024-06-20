@@ -9,36 +9,21 @@ import json
 import wandb
 
 wandb.init(project="llama3_finetuning")
-"""
-bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_use_double_quant=True,
-)
-quantization_config=bnb_config,
-"""
+
 # 加载模型
 model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
     use_cache=False,
     trust_remote_code=True,
-    #attn_implementation="flash_attention_2",  # loading the model with flash-attenstion support
     torch_dtype=torch.float16,
     device_map="auto")
-"""try:
-    with open(model_id, 'r') as f:
-        index = json.loads(f.read())
-except json.decoder.JSONDecodeError:
-    print("Error: The file either contains no data or is not a valid JSON file.")
-except FileNotFoundError:
-    print("Error: The file was not found.")
-"""
+
 model.config.use_cache=False
 device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(model_id, add_eos_token=True, use_fast=True)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.pad_token_id =  tokenizer.eos_token_id
+
 # 加载数据集
 data_file_path = "/users/u202220081001066/datas/single_review_rp_gpt_outputs.json"
 data = load_dataset("json",data_files=data_file_path)
