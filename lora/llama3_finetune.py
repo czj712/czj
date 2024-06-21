@@ -63,9 +63,9 @@ def print_gpu_utilization(step):
         print(f"Step {step}: GPU memory allocated: {allocated / (1024 ** 3):.2f}GB, Max GPU memory allocated: {max_allocated / (1024 **3):.2f} GB")
 
 class CustomTrainer(SFTTrainer):
-        def training_step(self, *args, **kwags):
+        def training_step(self, model, inputs):
                 step = self.state.global_step
-                result = super().training_step(*args, **kwargs)
+                result = super().training_step(model, inputs)
                 print_gpu_utilization(step)
                 return result
 
