@@ -57,7 +57,7 @@ output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-def print_gpu_utilization(step):
+def print_gpu_utilization():
         allocated = torch.cuda.memory_allocated(device)
         max_allocated = torch.cuda.max_memory_allocated(device)
         utilization = torch.cuda.utilization(device)
