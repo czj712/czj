@@ -70,7 +70,7 @@ class CustomTrainer(SFTTrainer):
                 return result
 
 # 初始化 Trainer
-trainer = CustomSFTTrainer(
+trainer = CustomTrainer(
     model=model,
     train_dataset=train_data,
     eval_dataset=test_data,
