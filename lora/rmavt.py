@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLan
 import os
 import json
 import wandb
-
+import torch.nn as nn
 wandb.init(project="llama3_ramvat_finetuning")
 
 # 加载模型
@@ -17,6 +17,17 @@ model = AutoModelForCausalLM.from_pretrained(model_id,
     trust_remote_code=True,
     torch_dtype=torch.float16,
     device_map="auto")
+
+def check_model_layers(model):
+    layer_shapes = {}
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            layer_shapes[name] = module.weight.shape
+    return layer_shapes
+
+layer_shapes = check_model_layers(model)
+for name, shape in layer_shapes.items():
+    print(f"Layer: {name}, Shape: {shape}")
 
 model.config.use_cache=False
 device = "cuda" if torch.cuda.is_available() else "cpu"
