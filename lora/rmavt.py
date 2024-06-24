@@ -8,7 +8,7 @@ import os
 import json
 import wandb
 
-wandb.init(project="llama3_finetuning")
+wandb.init(project="llama3_ramvat_finetuning")
 
 # 加载模型
 model_id = "/home/u202220081001066/llama3"
@@ -77,7 +77,7 @@ trainer = CustomTrainer(
     max_seq_length=2048,
     tokenizer=tokenizer,
     args=transformers.TrainingArguments(
-        num_train_epochs= 10,
+        num_train_epochs= 5,
         per_device_train_batch_size=4,
         gradient_accumulation_steps=4,
         warmup_steps=50,
@@ -98,7 +98,7 @@ trainer = CustomTrainer(
 trainer.train()
 
 # 保存和上传 Lora 适配器
-adapter_output_dir = os.path.join(output_dir, "llama3_adapter")
+adapter_output_dir = os.path.join(output_dir, "llama3_rmavt_adapter")
 if not os.path.exists(adapter_output_dir):
     os.makedirs(adapter_output_dir)
 
