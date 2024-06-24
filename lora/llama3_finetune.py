@@ -47,11 +47,8 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
-# 准备模型进行 k 位训练
-model = prepare_model_for_kbit_training(model)
-
-# 添加 Lora 适配器
-model.add_adapter(lora_config, adapter_name="llama3_adapter")
+model = get_peft_model(model,lora_config)
+model.print_trainable_parameters()
 
 output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
