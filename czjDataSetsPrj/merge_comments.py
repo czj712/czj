@@ -8,7 +8,7 @@ user_comments = []
 # 遍历 data 中的每个用户的评论
 for user_data in data:
     if not user_data:  # 检查 user_data 是否为空
-    continue  # 如果为空，则跳过此条目
+        continue  # 如果为空，则跳过此条目
 
     # 创建一个空的字典，用于存储当前用户的数据
     user_info = {"user_id": user_data[0]["user_id"], "comments": []}
