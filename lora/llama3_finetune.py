@@ -47,8 +47,6 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
-model = get_peft_model(model,lora_config)
-model.print_trainable_parameters()
 
 output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
@@ -98,6 +96,9 @@ trainer = CustomTrainer(
 
 # 训练模型
 trainer.train()
+
+model = get_peft_model(model,lora_config)
+model.print_trainable_parameters()
 
 # 保存和上传 Lora 适配器
 adapter_output_dir = os.path.join(output_dir, "llama3_adapter")
