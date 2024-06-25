@@ -1,6 +1,6 @@
 import json 
 
-with open("/users/u202220081001066/czj/czjDataSetsPrj/results.json") as file:
+with open("/Users/zijianchen/Desktop/datas/5comment_result.json") as file:
     data = json.load(file)
 
 user_comments = []
@@ -13,7 +13,6 @@ for user_data in data:
     for comment in user_data:
         # 将每条评论的商品 ID 和评论文本添加到当前用户的评论列表中
         user_info["comments"].append({
-            "product_id": comment["parent_asin"],
             "review": comment["text"]
         })
         print(user_info)
@@ -21,6 +20,6 @@ for user_data in data:
     user_comments.append(user_info)
 
 # 保存整理后的数据到文件
-with open("/users/u202220081001066/czj/czjDataSetsPrj/formated_data.json", "w") as f:
+with open("/Users/zijianchen/Desktop/datas/5_merged_comments_data.json", "w") as f:
     json.dump(user_comments, f)
 print("文件已保存完成！")
