@@ -56,7 +56,7 @@ def process_data():
             reviews = user_data['comments']
             user_profile = generate_user_profile(reviews, user_id)
             result_dict = {
-                "instruction": f"According to consumer A (user_id: {user_id})'s comments information: '{reviews}'. What is the user profile of consumer A? Just return several tags, preferably including age group, occupation, and region.",
+                "instruction": f"According to consumer A (user_id: {user_id})'s comments information: '{reviews}'. What is the user profile of consumer A? Just return several tags, separated by commas.",
                 "input": "",
                 "output": user_profile
             }
