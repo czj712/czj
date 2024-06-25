@@ -17,19 +17,21 @@ def generate_user_profile(reviews, user_id):
 Based on the comments provided by user with ID {user_id}, generate a profile for the user. 
 Comments: '{reviews}'
 Return several descriptive tags separated by commas. Try to infer the age group and region if possible. If not, return other relevant tags like interests, buying habits, or sentiment."""
-     try:
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",  # 使用适当的引擎
-                messages=[
+     
+    try:     
+         response = client.chat.completions.create(
+             model="gpt-3.5-turbo",  # 使用适当的引擎
+             messages=[
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=60
             )
     
-            if response and 'choices' in response and len(response.choices) > 0:
-                user_profile = response.choices[0].message.content.strip()
-                print(f"用户 {user_id} 的评论为: '{reviews}' 生成的用户画像为: {user_profile}")
-                return user_profile
+         if response and 'choices' in response and len(response.choices) > 0:
+             
+             user_profile = response.choices[0].message.content.strip()
+             print(f"用户 {user_id} 的评论为: '{reviews}' 生成的用户画像为: {user_profile}")
+             return user_profile
             else:
                 print(f"用户 {user_id} 的评论为: '{reviews}' 没有生成有效的用户画像")
                 return "No profile generated"
