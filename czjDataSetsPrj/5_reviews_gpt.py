@@ -43,9 +43,9 @@ def process_data():
     # 为每一个用户生成用户画像，并保存到results列表中
     for user_data in data:
         if user_data:  # 确保 user_data 不是空的
-            user_id = user_data[0]['user_id']
-            review = user_data[0]['text']
-            user_profile = generate_user_profile(review, user_id)
+            user_id = user_data['user_id']
+            reviews = user_data['text']
+            user_profile = generate_user_profile(reviews, user_id)
             result_dict = {
                 "instruction": f"According to consumer A (user_id: {user_id})'s comments information: '{reviews}'. What is the user profile of consumer A? Just return several tags, preferably including age group, occupation, and region.",
                 "input": "",
