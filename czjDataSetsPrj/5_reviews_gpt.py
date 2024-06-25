@@ -13,8 +13,9 @@ def load_data(file_path):
 
 def generate_user_profile(reviews, user_id):
     prompt = f"""
-According to consumer A (user_id: {user_id})'s comments information:
-'{reviews}', what is the consumer profile of consumer A? Just return several tags,separated by commas. If you can infer age grop, region, return as tags, if not, return other tags that can be inferred from the comments."""
+Based on the comments provided by user with ID {user_id}, generate a profile for the user. 
+Comments: '{reviews}'
+Return several descriptive tags separated by commas. Try to infer the age group and region if possible. If not, return other relevant tags like interests, buying habits, or sentiment."""
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",  # 使用适当的引擎
         messages=[
