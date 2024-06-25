@@ -12,9 +12,7 @@ for user_data in data:
     # 遍历每条评论
     for comment in user_data:
         # 将每条评论的商品 ID 和评论文本添加到当前用户的评论列表中
-        user_info["comments"].append({
-            "review": comment["text"]
-        })
+        user_info["comments"].append(comment["text"])
         print(user_info)
     # 将当前用户的字典添加到用户评论列表中
     user_comments.append(user_info)
