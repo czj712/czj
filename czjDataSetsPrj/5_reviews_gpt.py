@@ -14,7 +14,7 @@ def load_data(file_path):
 def generate_user_profile(reviews, user_id):
     prompt = f"""
 According to consumer A (user_id: {user_id})'s comments information:
-'{reviews}', what is the consumer profile of consumer A? Just return several tags, preferably including age group, occupation, and region.
+'{reviews}', what is the consumer profile of consumer A? Just return several tags, preferably including age group, occupation, and region."""
 
 def save_results(results, file_path):
     # 读取现有数据
