@@ -54,7 +54,8 @@ if not os.path.exists(output_dir):
 
 def print_gpu_utilization(step):
     allocated = torch.cuda.memory_allocated(device)
-    max_allocated = torch.cuda.max_memory_allocated(device)print(f"Step {step}: GPU memory allocated: {allocated / (1024 ** 3):.2f}GB, Max GPU memory allocated: {max_allocated / (1024 ** 3):.2f} GB")
+    max_allocated = torch.cuda.max_memory_allocated(device)
+    print(f"Step {step}: GPU memory allocated: {allocated / (1024 ** 3):.2f}GB, Max GPU memory allocated: {max_allocated / (1024 ** 3):.2f} GB")
 
 class CustomTrainer(SFTTrainer):
         def training_step(self, *args, **kwargs):
