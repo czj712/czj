@@ -32,9 +32,9 @@ Return several descriptive tags separated by commas. Try to infer the age group 
              user_profile = response.choices[0].message.content.strip()
              print(f"用户 {user_id} 的评论为: '{reviews}' 生成的用户画像为: {user_profile}")
              return user_profile
-            else:
-                print(f"用户 {user_id} 的评论为: '{reviews}' 没有生成有效的用户画像")
-                return "No profile generated"
+         else:
+             print(f"用户 {user_id} 的评论为: '{reviews}' 没有生成有效的用户画像")
+             return "No profile generated"
     except Exception as e:
         print(f"用户 {user_id} 的评论为: '{reviews}' 生成用户画像时出错: {e}")
         return "Error generating profile"
