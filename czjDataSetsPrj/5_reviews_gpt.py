@@ -15,7 +15,16 @@ def generate_user_profile(reviews, user_id):
     prompt = f"""
 According to consumer A (user_id: {user_id})'s comments information:
 '{reviews}', what is the consumer profile of consumer A? Just return several tags, preferably including age group, occupation, and region."""
-
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",  # 使用适当的引擎
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=60
+    )
+    user_profile = response.choices[0].message.content.strip()
+    print(f"用户 {user_id} 的评论为: '{reviews}' 生成的用户画像为: {user_profile}")
+    return user_profile
 def save_results(results, file_path):
     # 读取现有数据
     try:
