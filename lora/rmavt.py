@@ -15,7 +15,7 @@ model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
     use_cache=False,
     trust_remote_code=True,
-    torch_dtype=torch.float16,
+    torch_dtype=torch.float32,
     device_map="auto")
 
 def check_model_layers(model):
@@ -50,7 +50,7 @@ test_data = split_data["test"]
 
 # PeFT 配置
 vera_config = VeraConfig(
-    target_modules=["model.layers.0.self_attn.q_proj"],
+    target_modules=["model.layers.{}.self_attn.q_proj".format(i) for i in range(32)]+["model.layers.{}.self_attn.o_proj".format{i} for i in range(32)],
     r=128,
     vera_dropout=0.05,
     bias="none",
