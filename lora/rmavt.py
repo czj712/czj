@@ -15,7 +15,7 @@ model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
     use_cache=False,
     trust_remote_code=True,
-    torch_dtype=torch.bfloat16,
+    torch_dtype=torch.float32,
     device_map="auto")
 
 def check_model_layers(model):
