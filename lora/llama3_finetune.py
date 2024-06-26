@@ -39,14 +39,16 @@ test_data = split_data["test"]
 
 # PeFT 配置
 lora_config = LoraConfig(
-    r=16,
-    lora_alpha=32,
+    r=32,
+    lora_alpha=64,
     target_modules=["q_proj", "o_proj"],
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM"
 )
 
+model = get_peft_model(model,lora_config)
+model.print_trainable_parameters()
 
 output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
@@ -93,9 +95,6 @@ trainer = CustomTrainer(
 
 # 训练模型
 trainer.train()
-
-model = get_peft_model(model,lora_config)
-model.print_trainable_parameters()
 
 # 保存和上传 Lora 适配器
 adapter_output_dir = os.path.join(output_dir, "llama3_adapter")
