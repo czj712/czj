@@ -50,7 +50,7 @@ test_data = split_data["test"]
 
 # PeFT 配置
 vera_config = VeraConfig(
-    target_modules=["model.layers.{}.self_attn.q_proj".format(i) for i in range(32)]+["model.layers.{}.self_attn.o_proj".format{i} for i in range(32)],
+    target_modules=["model.layers.{}.self_attn.q_proj".format(i) for i in range(32)]+["model.layers.{}.self_attn.o_proj".format(i) for i in range(32)],
     r=128,
     vera_dropout=0.05,
     bias="none",
