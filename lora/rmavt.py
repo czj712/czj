@@ -15,7 +15,7 @@ model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
     use_cache=False,
     trust_remote_code=True,
-    torch_dtype=torch.float32,
+    torch_dtype=torch.bfloat16,
     device_map="auto")
 
 def check_model_layers(model):
@@ -88,11 +88,11 @@ trainer = CustomTrainer(
     max_seq_length=2048,
     tokenizer=tokenizer,
     args=transformers.TrainingArguments(
-        num_train_epochs= 5,
+        num_train_epochs= 10,
         per_device_train_batch_size=4,
         gradient_accumulation_steps=4,
         warmup_steps=50,
-        max_steps=-1,
+        max_steps=500,
         learning_rate=1e-4,
         bf16=False,
         fp16=True,
