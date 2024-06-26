@@ -61,7 +61,7 @@ class CustomTrainer(SFTTrainer):
         def training_step(self, *args, **kwargs):
                 step = self.state.global_step
                 result = super().training_step(*args, **kwargs)
-                print_gpu_utilization()
+                print_gpu_utilization(step)
                 return result
 
 # 初始化 Trainer
