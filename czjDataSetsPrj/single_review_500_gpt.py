@@ -47,7 +47,7 @@ def save_results(results, file_path):
 def process_data():
     count = 0
     save_interval = 50 
-    data = load_data("/Users/zijianchen/Desktop/datas/v2_1comment_result.json")
+    data = load_data("/Users/zijianchen/Desktop/datas/v3_1comment_result.json")
     json_file_path = '/Users/zijianchen/Desktop/datas/single_review_rp_gpt_outputs.json'
     results = []
     print("开始处理数据...")
