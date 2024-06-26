@@ -16,17 +16,23 @@ def generate_user_profile(review, user_id):
     prompt = f"""
 According to consumer A (user_id: {user_id})'s comment information:
 '{review}', what is the user profile of consumer A? Use a single descriptive word that reflects the user's characteristics based on their comment. Avoid generic terms like 'satisfied' or 'happy'.Instead, use more specific and descriptive words that capture unique characteristics of the user. Examples of such words include 'craftsman', 'enthusiast', 'connoisseur', 'novice', 'expert', etc. Just return a word without punctuation or other symbols.
-"""
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",  # 使用适当的引擎
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=60
-    )
-    user_profile = response.choices[0].message.content.strip()
-    print(f"用户 {user_id} 的评论为: '{review}' 生成的用户画像为: {user_profile}")
-    return user_profile
+"""  
+    try:
+        response = client.chat.completions.create(
+                 model="gpt-3.5-turbo",  # 使用适当的引擎
+                 messages=[
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=60
+                )
+              
+        user_profile = response.choices[0].message.content.strip()
+        print(f"用户 {user_id} 的评论为: '{review}' 生成的用户画像为: {user_profile}")
+        return user_profile
+                 
+    except Exception as e:
+        print(f"用户 {user_id} 的评论为: '{review}' 生成用户画像时出错: {e}")
+        return "Error generating profile"
 
 def save_results(results, file_path):
     # 读取现有数据
