@@ -5,7 +5,6 @@ import os
 
 # 设置文件路径和对应的类别
 file_paths = {
-    '/Users/zijianchen/Desktop/datas/All_Beauty.jsonl': 'All_Beauty',
     '/Users/zijianchen/Desktop/datas/Video_Games.jsonl': 'Video_Games',
     '/Users/zijianchen/Desktop/datas/Musical_Instruments.jsonl': 'Musical_Instruments',
     '/Users/zijianchen/Desktop/datas/Software.jsonl': 'Software' , 
@@ -44,7 +43,7 @@ for index, item in enumerate(sampled_data, 1):
         "display_fields": "user_id,text",
         "max_chars_len": 800,
         "order_by_helpfulvote": "true",
-        "max_len": 5
+        "max_len": 1
     }
     # 打印请求体
     print(f"Request payload: {json.dumps(payload, indent=2)}")
@@ -62,4 +61,4 @@ for index, item in enumerate(sampled_data, 1):
 with open('/Users/zijianchen/Desktop/datas/5comment_result.json', 'w') as f:
     json.dump(results, f)
 
-print("All data processed and saved to 5comment_result.json.")
+print("All data processed and saved to v3_1comment_result.json.")
