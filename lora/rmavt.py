@@ -51,7 +51,6 @@ test_data = split_data["test"]
 # PeFT 配置
 vera_config = VeraConfig(
     r=128,
-    target_modules=["q_proj", "k_proj", "v_proj"],
     vera_dropout=0.05,
     bias="none",
 )
