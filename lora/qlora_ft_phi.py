@@ -2,10 +2,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 # 加载模型和标记器
-base_model_id = "microsoft/Phi-3-mini-4k-instruct"
-adapter_model_id = "/home/ubuntu/outputs/phi3_adapter"
-merged_model_id = "/home/ubuntu/outputs/phi3_merged"
-model = AutoModelForCausalLM.from_pretrained(merged_model_id,device_map={"":0}, trust_remote_code=True, attn_implementation="flash_attention_2", torch_dtype=torch.bfloat16,)
+merged_model_id = "/users/u202220081001066/outputs/phi3_rmavt_merged"
+model = AutoModelForCausalLM.from_pretrained(merged_model_id,device_map={"":0}, trust_remote_code=True, torch_dtype=torch.float16,)
 #model = PeftModel.from_pretrained(model, adapter_model_id)
 tokenizer = AutoTokenizer.from_pretrained(merged_model_id, padding_side='left', trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
