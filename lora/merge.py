@@ -4,9 +4,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import os
 
 # 配置路径
-model_id = "/home/u202220081001066/llama3"
-lora_path = "/users/u202220081001066/outputs/llama3_rmavt_adapter"
-merged_output_dir = "/users/u202220081001066/outputs/llama3_rmavt_merged"
+model_id = "/home/u202220081001066/phi3"
+lora_path = "/users/u202220081001066/outputs/phi3_rmavt_adapter"
+merged_output_dir = "/users/u202220081001066/outputs/phi3_rmavt_merged"
 
 # 加载原始模型
 print(f"Loading the base model from {model_id}")
