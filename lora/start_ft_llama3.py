@@ -3,12 +3,10 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 # 加载模型和标记器
-base_model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
-adapter_model_id = "/home/ubuntu/outputs/llama3_adapter"
-merged_model_id = "/users/u202220081001066/outputs/llama3_merged"
+merged_model_id = "/users/u202220081001066/outputs/llama3_rmavt_merged"
 model = AutoModelForCausalLM.from_pretrained(merged_model_id,device_map={"":0}, trust_remote_code=True, torch_dtype=torch.float16,)
 #model = PeftModel.from_pretrained(model, adapter_model_id)
-tokenizer = AutoTokenizer.from_pretrained(merged_model_id,  padding_side='right', trust_remote_code=True)
+tokenizer = AutoTokenizer.from_pretrained(merged_model_id,  padding_side='left', trust_remote_code=True)
 tokenizer.pad_token = tokenizer.eos_token
 
 def get_completion(query: str, model, tokenizer) -> str:
