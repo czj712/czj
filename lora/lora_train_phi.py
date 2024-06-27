@@ -9,6 +9,15 @@ import json
 import wandb
 
 wandb.init(project="phi3_lora_finetuning")
+
+# 加载预训练的 phi-3 模型
+model_id = "/home/u202220081001066/phi3"
+model = AutoModelForCausalLM.from_pretrained(model_id,
+    use_cache=False,
+    trust_remote_code=True,
+    torch_dtype=torch.float16,
+    device_map="auto")
+
 def check_model_layers(model):
     layer_shapes = {}
     for name, module in model.named_modules():
@@ -20,20 +29,6 @@ layer_shapes = check_model_layers(model)
 for name, shape in layer_shapes.items():
     print(f"Layer: {name}, Shape: {shape}")
 
-# 加载预训练的 phi-3 模型
-model_id = "/home/u202220081001066/phi3"
-model = AutoModelForCausalLM.from_pretrained(model_id,
-    use_cache=False,
-    trust_remote_code=True,
-    torch_dtype=torch.float16,
-    device_map="auto")
-try:
-    with open(model_id, 'r') as f:
-        index = json.loads(f.read())
-except json.decoder.JSONDecodeError:
-    print("Error: The file either contains no data or is not a valid JSON file.")
-except FileNotFoundError:
-    print("Error: The file was not found.")
 model.config.use_cache=False
 device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -62,7 +57,7 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
-model = get_peft_model(model_id, lora_config)
+model = get_peft_model(model, lora_config)
 model.print_trainable_parameters()
 
 output_dir = "/users/u202220081001066/outputs"
