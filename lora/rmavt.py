@@ -51,7 +51,7 @@ test_data = split_data["test"]
 # PeFT 配置
 vera_config = VeraConfig(
     target_modules=["model.layers.{}.self_attn.q_proj".format(i) for i in range(32)]+["model.layers.{}.self_attn.o_proj".format(i) for i in range(32)],
-    r=128,
+    r=1024,
     vera_dropout=0.05,
     bias="none",
 )
@@ -88,12 +88,12 @@ trainer = CustomTrainer(
     max_seq_length=2048,
     tokenizer=tokenizer,
     args=transformers.TrainingArguments(
-        num_train_epochs= 10,
-        per_device_train_batch_size=8,
+        num_train_epochs= 5,
+        per_device_train_batch_size=4,
         gradient_accumulation_steps=4,
-        warmup_steps=50,
-        max_steps=500,
-        learning_rate=1e-4,
+        warmup_steps=0.1,
+        max_steps=1000,
+        learning_rate=4e-3,
         bf16=True,
         fp16=False,
         logging_steps=10,
