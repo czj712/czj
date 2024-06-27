@@ -41,7 +41,7 @@ test_data = split_data["test"]
 lora_config = LoraConfig(
     r=64,
     lora_alpha=128,
-    target_modules=["q_proj","k_proj","v_proj" "o_proj"],
+    target_modules=["q_proj","o_proj"],
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM"
@@ -54,16 +54,11 @@ output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-def print_gpu_utilization(step):
-    allocated = torch.cuda.memory_allocated(device)
-    max_allocated = torch.cuda.max_memory_allocated(device)
-    print(f"Step {step}: GPU memory allocated: {allocated / (1024 ** 3):.2f}GB, Max GPU memory allocated: {max_allocated / (1024 ** 3):.2f} GB")
 
 class CustomTrainer(SFTTrainer):
         def training_step(self, *args, **kwargs):
                 step = self.state.global_step
                 result = super().training_step(*args, **kwargs)
-                print_gpu_utilization(step)
                 return result
 
 # 初始化 Trainer
@@ -84,7 +79,7 @@ trainer = CustomTrainer(
         learning_rate=4e-4,
         bf16=True,
         fp16=False,
-        logging_steps=10,
+        logging_steps=5,
         output_dir=output_dir,
         optim="paged_adamw_8bit",
         save_strategy="epoch",
