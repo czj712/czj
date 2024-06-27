@@ -25,7 +25,7 @@ def get_completion(query: str, model, tokenizer) -> str:
     model_inputs = encodeds.to(device)
 
     # 使用模型生成文本
-    generated_ids = model.generate(model_inputs.input_ids, max_new_tokens=256,repetition_penalty=1.5, pad_token_id=tokenizer.pad_token_id, num_return_sequences=1)
+    generated_ids = model.generate(**model_inputs, max_new_tokens=256,repetition_penalty=1.5, pad_token_id=tokenizer.pad_token_id, num_return_sequences=1)
     decoded = tokenizer.batch_decode(generated_ids)
     return decoded[0]
 
