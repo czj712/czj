@@ -15,7 +15,7 @@ model_id = "/home/u202220081001066/llama3"
 model = AutoModelForCausalLM.from_pretrained(model_id,
     use_cache=False,
     trust_remote_code=True,
-    torch_dtype=torch.float32,
+    torch_dtype=torch.float16,
     device_map="auto")
 
 model.config.use_cache=False
@@ -41,7 +41,7 @@ test_data = split_data["test"]
 lora_config = LoraConfig(
     r=32,
     lora_alpha=64,
-    target_modules=["q_proj", "o_proj"],
+    target_modules=["q_proj","k_proj","v_proj" "o_proj"],
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM"
