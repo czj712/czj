@@ -39,8 +39,8 @@ test_data = split_data["test"]
 
 # PeFT 配置
 lora_config = LoraConfig(
-    r=32,
-    lora_alpha=64,
+    r=64,
+    lora_alpha=128,
     target_modules=["q_proj","k_proj","v_proj" "o_proj"],
     lora_dropout=0.05,
     bias="none",
@@ -77,11 +77,11 @@ trainer = CustomTrainer(
     tokenizer=tokenizer,
     args=transformers.TrainingArguments(
         num_train_epochs= 5,
-        per_device_train_batch_size=4,
+        per_device_train_batch_size=8,
         gradient_accumulation_steps=4,
         warmup_steps=50,
         max_steps=500,
-        learning_rate=1e-4,
+        learning_rate=4e-4,
         bf16=True,
         fp16=False,
         logging_steps=10,
