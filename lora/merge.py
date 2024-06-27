@@ -5,8 +5,8 @@ import os
 
 # 配置路径
 model_id = "/home/u202220081001066/llama3"
-lora_path = "/users/u202220081001066/outputs/llama3_adapter"
-merged_output_dir = "/users/u202220081001066/outputs/llama3_merged"
+lora_path = "/users/u202220081001066/outputs/llama3_rmavt_adapter"
+merged_output_dir = "/users/u202220081001066/outputs/llama3_rmavt_merged"
 
 # 加载原始模型
 print(f"Loading the base model from {model_id}")
@@ -29,4 +29,4 @@ model.save_pretrained(merged_output_dir)
 tokenizer = AutoTokenizer.from_pretrained(model_id,  padding_side='left', trust_remote_code=True)
 tokenizer.save_pretrained(merged_output_dir)
 
-print("已经成功合并lora模型。")
+print("已经成功合并rmavt模型。")
