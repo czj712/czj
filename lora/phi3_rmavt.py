@@ -1,9 +1,9 @@
 import torch
 from datasets import load_dataset
-from peft import VeraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
+from peft import VeraConfig, get_peft_model, PeftModel
 from trl import SFTTrainer
 import transformers
-from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
 import os
 import json
 import wandb
@@ -51,7 +51,7 @@ test_data = split_data["test"]
 
 # PeFT 配置
 vera_config = VeraConfig(
-    target_modules=["model.layers.{}.self_attn.q_proj".format(i) for i in range(32)]+["model.layers.{}.self_attn.o_proj".format(i) for i in range(32)],
+    target_modules=["q","k","v","o"],
     r=1024,
     vera_dropout=0.05,
     bias="none",
