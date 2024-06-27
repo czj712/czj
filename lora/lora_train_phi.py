@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLan
 import os
 import json
 import wandb
-
+import torch.nn as nn
 wandb.init(project="phi3_lora_finetuning")
 
 # 加载预训练的 phi-3 模型
