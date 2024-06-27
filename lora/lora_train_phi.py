@@ -62,7 +62,7 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM"
 )
 
-model = get_peft_model(model, lora_config)
+model = get_peft_model(model_id, lora_config)
 model.print_trainable_parameters()
 
 output_dir = "/users/u202220081001066/outputs"
