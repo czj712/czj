@@ -2,8 +2,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 # 加载模型和标记器
-model = AutoModelForCausalLM.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct",device_map={"":0}, trust_remote_code=True, torch_dtype=torch.bfloat16,)
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct", padding_side='left', trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained("/home/u202220081001066/llama3",device_map={"":0}, torch_dtype=torch.float16,)
+tokenizer = AutoTokenizer.from_pretrained("/home/u202220081001066/llama3", padding_side='left')
 tokenizer.pad_token = tokenizer.eos_token
 
 def get_completion(query: str, model, tokenizer) -> str:
