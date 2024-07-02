@@ -22,7 +22,7 @@ for file_path, category in file_paths.items():
             all_data.append(data)
 
 # 随机选取500条数据
-sampled_data = random.sample(all_data, 600)
+sampled_data = random.sample(all_data, 1000)
 
 api_key = "9d207bf0-10f5-4d8f-a479-22ff5aeffad1"
 
