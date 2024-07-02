@@ -58,7 +58,7 @@ for index, item in enumerate(sampled_data, 1):
     print(f"Response: {json.dumps(result, indent=2)}")
 
 # 保存结果到JSON文件
-with open('/users/u202220081001066/datas/v4_1comment_result.json', 'w') as f:
+with open('/users/u202220081001066/datas/v5_1comment_result.json', 'w') as f:
     json.dump(results, f)
 
-print("All data processed and saved to v3_1comment_result.json.")
+print("All data processed and saved to v5_1comment_result.json.")
