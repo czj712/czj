@@ -6,9 +6,7 @@ import os
 # 设置文件路径和对应的类别
 file_paths = {
     '/users/u202220081001066/datas/Video_Games.jsonl': 'Video_Games',
-    '/users/u202220081001066/datas/Musical_Instruments.jsonl': 'Musical_Instruments',
-    '/users/u202220081001066/datas/Software.jsonl': 'Software' , 
-    '/users/u202220081001066/datas/Industrial_and_Scientific.jsonl': 'Industrial_and_Scientific',
+    '/users/u202220081001066/datas/Pet_Supplies.jsonl': 'Pet_Supplies' , 
     '/users/u202220081001066/datas/Arts_Crafts_and_Sewing.jsonl': 'Arts_Crafts_and_Sewing' 
 }
 
@@ -58,7 +56,7 @@ for index, item in enumerate(sampled_data, 1):
     print(f"Response: {json.dumps(result, indent=2)}")
 
 # 保存结果到JSON文件
-with open('/users/u202220081001066/datas/v5_1comment_result.json', 'w') as f:
+with open('/users/u202220081001066/datas/v6_1comment_result.json', 'w') as f:
     json.dump(results, f)
 
-print("All data processed and saved to v5_1comment_result.json.")
+print("All data processed and saved to v6_1comment_result.json.")
