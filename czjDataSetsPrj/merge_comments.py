@@ -1,7 +1,16 @@
 import json 
+import os
 
-with open("/Users/zijianchen/Desktop/datas/5comment_result.json") as file:
-    data = json.load(file)
+existing_data_file="/users/u202220081001066/datas/5_merged_comments_data.json"
+data_file = "/users/u202220081001066/datas/5_merged_comments_data.json"
+if os.path.exists(existing_data_file):
+    with open(existing_data_file, 'r') as file:
+        existing_data = json.load(file)
+else:
+    existing_data = []
+
+with open(new_data_file, 'r') as file:
+    new_data = json.load(file)
 
 user_comments = []
 
@@ -20,7 +29,8 @@ for user_data in data:
     # 将当前用户的字典添加到用户评论列表中
     user_comments.append(user_info)
 
+existing_data.extend(user_comments)
 # 保存整理后的数据到文件
-with open("/Users/zijianchen/Desktop/datas/5_merged_comments_data.json", "w") as f:
+with open(existing_data_file, "w") as f:
     json.dump(user_comments, f)
 print("文件已保存完成！")
