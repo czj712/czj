@@ -9,7 +9,7 @@ if os.path.exists(existing_data_file):
 else:
     existing_data = []
 
-with open(new_data_file, 'r') as file:
+with open(data_file, 'r') as file:
     new_data = json.load(file)
 
 user_comments = []
