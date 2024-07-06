@@ -2,7 +2,7 @@ import json
 import os
 
 existing_data_file="/users/u202220081001066/datas/5_merged_comments_data.json"
-data_file = "/users/u202220081001066/datas/v1_5comment_result.json "
+data_file = "/users/u202220081001066/datas/v1_5comment_result.json"
 if os.path.exists(existing_data_file):
     with open(existing_data_file, 'r') as file:
         existing_data = json.load(file)
