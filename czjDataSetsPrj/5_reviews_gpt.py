@@ -53,8 +53,8 @@ def save_results(results, file_path):
 def process_data():
     count = 0
     save_interval = 50 
-    data = load_data("/Users/zijianchen/Desktop/datas/5_merged_comments_data.json")
-    json_file_path = '/Users/zijianchen/Desktop/datas/5_reviews_rp_gpt_outputs.json'
+    data = load_data("/users/u202220081001066/datas/5_merged_comments_data.json")
+    json_file_path = '/users/u202220081001066/datas/5_reviews_rp_gpt_outputs.json'
     results = []
     print("开始处理数据...")
 
