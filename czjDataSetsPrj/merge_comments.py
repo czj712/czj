@@ -10,7 +10,7 @@ else:
     existing_data = []
 
 with open(data_file, 'r') as file:
-    new_data = json.load(file)
+    data = json.load(file)
 
 user_comments = []
 
