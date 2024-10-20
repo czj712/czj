@@ -3,6 +3,7 @@ from datasets import load_dataset
 from peft import VeraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 from trl import SFTTrainer
 import transformers
+from transformers import Trainer
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BitsAndBytesConfig
 import os
 import json
@@ -54,7 +55,10 @@ vera_config = VeraConfig(
     r=64,
     vera_dropout=0.05,
     bias="none",
-)
+    svd_init=True,
+    lambda_lr_ratio=10.0,
+    d_initial=0.1,
+    )
 model = get_peft_model(model, vera_config)
 model.print_trainable_parameters()
 
@@ -62,22 +66,51 @@ model.print_trainable_parameters()
 output_dir = "/users/u202220081001066/outputs"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
-
+def get_parameter_groups(model, base_lr, lambda_lr_ratio):
+    lambda_d_params = []
+    lambda_b_params = []
+    other_params = []
+    for name, param in model.named_parameters():
+        if 'vera_lambda_d' in name and param.requires_grad:
+            lambda_d_params.append(param)
+        elif 'vera_lambda_b' in name and param.requires_grad:
+            lambda_b_params.append(param)
+        elif param.requires_grad:
+            other_params.append(param)
+    return [
+        {'params': lambda_d_params, 'lr': base_lr},
+        {'params': lambda_b_params, 'lr': base_lr * lambda_lr_ratio},
+        {'params': other_params, 'lr': base_lr},
+    ]
+        
 
 class CustomTrainer(SFTTrainer):
-        def training_step(self, model, inputs):
-                step = self.state.global_step
-                result = super().training_step(model, inputs)
-                return result
+    def __init__(self, *args, peft_config=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.peft_config = peft_config
+    def create_optimizer(self):
+        if self.optimizer is None:
+            base_lr = self.args.learning_rate
+            lambda_lr_ratio = self.peft_config.lambda_lr_ratio
+            parameter_groups = get_parameter_groups(self.model, base_lr, lambda_lr_ratio)
+            optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
+            self.optimizer = optimizer_cls(parameter_groups, **optimizer_kwargs)
+        return self.optimizer
+    def training_step(self, model, inputs):
+        step = self.state.global_step
+        result = super().training_step(model, inputs)
+        return result    
+
 
 # 初始化 Trainer
+base_lr = 4e-3
 trainer = CustomTrainer(
     model=model,
     train_dataset=train_data,
     eval_dataset=test_data,
     dataset_text_field="instruction",
     peft_config=vera_config,
-    max_seq_length=2048,
+    max_seq_length=512,
     tokenizer=tokenizer,
     args=transformers.TrainingArguments(
         num_train_epochs= 5,
