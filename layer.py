@@ -68,8 +68,6 @@ class VeraLayer(BaseTunerLayer):
     def update_layer(
         self,
         adapter_name,
-        vera_A: Optional[BufferDict],
-        vera_B: Optional[BufferDict],
         r,
         vera_dropout,
         init_weights,
@@ -79,6 +77,7 @@ class VeraLayer(BaseTunerLayer):
         if r <= 0:
             raise ValueError(f"`r` should be a positive integer value but the value passed is {r}")
         self.r[adapter_name] = r
+	self.d_initial = d_initial
         if vera_dropout > 0.0:
             vera_dropout_layer = nn.Dropout(p=vera_dropout)
         else:
@@ -87,10 +86,9 @@ class VeraLayer(BaseTunerLayer):
         self.vera_dropout.update(nn.ModuleDict({adapter_name: vera_dropout_layer}))
         # Actual trainable parameters
         self.vera_lambda_b[adapter_name] = nn.Parameter(torch.ones(self.out_features), requires_grad=True)
-        self.vera_lambda_d[adapter_name] = nn.Parameter(torch.randn(r), requires_grad=True)
-        if adapter_name not in self.vera_A:        
-            self.vera_A[adapter_name] = nn.Parameter(torch.empty(self.out_features, r), requires_grad=False)
-            self.vera_B[adapter_name] = nn.Parameter(torch.empty(r, self.in_features), requires_grad=False)
+        self.vera_lambda_d[adapter_name] = nn.Parameter(torch.randn(r), requires_grad=True)     
+        self.vera_A[adapter_name] = nn.Parameter(torch.empty(self.out_features, r), requires_grad=False)
+        self.vera_B[adapter_name] = nn.Parameter(torch.empty(r, self.in_features), requires_grad=False)
 
         if init_weights:
             if svd_init:
@@ -132,7 +130,7 @@ class Linear(nn.Linear, VeraLayer):
         self,
         base_layer,
         adapter_name: str,
-        r: int = 0,
+	r: int,
         vera_dropout: float = 0.0,
         fan_in_fan_out: bool = False,  # Set this to True if the layer to replace stores weight like (fan_in, fan_out)
         is_target_conv_1d_layer: bool = False,
@@ -142,12 +140,17 @@ class Linear(nn.Linear, VeraLayer):
         **kwargs,
     ) -> None:
         # this gets the init from nn.Linear's super perspective, i.e. nn.Module.__init__, which should always be called
-        super(nn.Linear, self).__init__()
+        nn.Linear.__init__(
+            self,
+            in_features=base_layer.in_features,
+            out_features=base_layer.out_features,
+            bias=base_layer.bias is not None,
+        )
         VeraLayer.__init__(self, base_layer, **kwargs)
         self.fan_in_fan_out = fan_in_fan_out
 
         self._active_adapter = adapter_name
-        self.update_layer(adapter_name, vera_A, vera_B, r, vera_dropout, init_weights)
+        self.update_layer(adapter_name, r, vera_dropout, init_weights, d_initial, svd_init)
         self.is_target_conv_1d_layer = is_target_conv_1d_layer
 
     def merge(self, safe_merge: bool = False, adapter_names: Optional[List[str]] = None) -> None:
