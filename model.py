@@ -322,8 +322,16 @@ class VeraModel(BaseTuner):
 
     @staticmethod
     def _create_new_module(vera_config, vera_A, vera_B, adapter_name, target, **kwargs):
-        bias = kwargs.pop("bias", False)
-
+        bias = hasattr(target, 'bias') and target.bias is not None
+        kwargs.update({
+        "r": vera_config.r,
+        "vera_dropout": vera_config.vera_dropout,
+        "fan_in_fan_out": vera_config.fan_in_fan_out,
+        "init_weights": vera_config.init_weights,
+        "d_initial": vera_config.d_initial,
+        "svd_init": vera_config.svd_init,
+        "bias": bias,
+    })
         if isinstance(target, BaseTunerLayer):
             target_base_layer = target.get_base_layer()
         else:
@@ -350,11 +358,8 @@ class VeraModel(BaseTuner):
                 "`torch.nn.Linear`, `transformers.pytorch_utils.Conv1D`."
             )
         new_module = Linear(
-            target,
-            vera_A,
-            vera_B,
-            adapter_name,
-            bias=bias,
+            base_layer=target,
+            adapter_name=adapter_name,
             **kwargs,
         )
 
