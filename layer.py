@@ -130,16 +130,17 @@ class Linear(nn.Linear, VeraLayer):
         self,
         base_layer,
         adapter_name: str,
-	r: int,
-        vera_dropout: float = 0.0,
-        fan_in_fan_out: bool = False,  # Set this to True if the layer to replace stores weight like (fan_in, fan_out)
-        is_target_conv_1d_layer: bool = False,
-        init_weights: bool = True,
-	d_initial: float = 0.1,
-	svd_init: bool = True,
         **kwargs,
     ) -> None:
         # this gets the init from nn.Linear's super perspective, i.e. nn.Module.__init__, which should always be called
+        r = kwargs.pop('r')
+        vera_dropout = kwargs.pop('vera_dropout', 0.0)
+        fan_in_fan_out = kwargs.pop('fan_in_fan_out', False)
+        is_target_conv_1d_layer = kwargs.pop('is_target_conv_1d_layer', False)
+        init_weights = kwargs.pop('init_weights', True)
+        d_initial = kwargs.pop('d_initial', 0.1)
+        svd_init = kwargs.pop('svd_init', True)
+        bias = kwargs.pop('bias', base_layer.bias is not None)
         nn.Linear.__init__(
             self,
             in_features=base_layer.in_features,
