@@ -7,14 +7,16 @@ import wandb
 wandb.init(project="roBerta-base-glue")
 
 
-glue_tasks = ["cola", "sst2", "mrpc", "stsb", "qqp", "mnli", "qnli", "rte"]
+glue_tasks = ["cola", "sst2", "stsb", "mnli", "qnli", "rte"]
 results = {}
 
 # 初始化结果字典
 for task in glue_tasks:
     # 加载数据集
-    dataset = load_dataset("glue", task)
-    tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+    data_dir = f"/home/u202220081001066/glue_datas{task}"
+    dataset = load_dataset("glue", task, data_dir=data_dir)
+    model_path = "/home/u202220081001066/roberta-base/"
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     def preprocess_function(examples):
         if task in ["mrpc", "qqp", "stsb", "mnli", "rte", "qnli"]:
             return tokenizer(examples["sentence1"], examples["sentence2"], padding="max_length", truncation=True, max_length=128)
@@ -26,7 +28,7 @@ for task in glue_tasks:
 
 # 根据任务标签数量加载模型（某些任务为二分类，其他任务可能为多分类）
     num_labels = 3 if task == "mnli" else 2
-    model = AutoModelForSequenceClassification.from_pretrained("roberta-base", num_labels=num_labels)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
 
 
 
