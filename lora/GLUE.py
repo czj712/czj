@@ -24,7 +24,7 @@ for task in glue_tasks:
     def preprocess_function(examples):
         try:
         # 根据任务选择合适的输入列
-            if task in ["mrpc", "qqp", "stsb", "mnli", "rte", "qnli"]:
+            if task in ["MRPC", "QQP", "STSB", "MNLI", "RTE", "QNLI"]:
                 sentence1 = examples.get("sentence1", [""])
                 sentence2 = examples.get("sentence2", [""])
                 if not isinstance(sentence1, list):
