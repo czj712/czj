@@ -41,7 +41,7 @@ for task in glue_tasks:
     model.print_trainable_parameters()
 
 
-    output_dir = f."/users/u202220081001066/outputs/results/{task}"
+    output_dir = f"/users/u202220081001066/outputs/results/{task}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 # 初始化 Trainer
@@ -65,7 +65,7 @@ for task in glue_tasks:
         learning_rate=2e-5,
         bf16=True,
         fp16=False,
-        logging_dir=f."/users/u202220081001066/outputs/logs/{task}",
+        logging_dir=f"/users/u202220081001066/outputs/logs/{task}",
         output_dir=output_dir,
         report_to="wandb"
     )
