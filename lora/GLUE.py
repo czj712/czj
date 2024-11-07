@@ -7,7 +7,7 @@ import wandb
 wandb.init(project="roBerta-base-glue")
 
 
-glue_tasks = ["cola", "sst2", "stsb", "mnli", "qnli", "rte"]
+glue_tasks = ["CoLA", "SST-2", "STS-B", "WNLI", "QNLI", "RTE"]
 results = {}
 
 # 初始化结果字典
@@ -21,7 +21,7 @@ for task in glue_tasks:
     model_path = "/home/u202220081001066/roberta-base/"
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     def preprocess_function(examples):
-        if task in ["mrpc", "qqp", "stsb", "mnli", "rte", "qnli"]:
+        if task in ["MRPC", "QQP", "STSB", "MNLI", "RTE", "QNLI"]:
             return tokenizer(examples["sentence1"], examples["sentence2"], padding="max_length", truncation=True, max_length=128)
         else:
             return tokenizer(examples["sentence"], padding="max_length", truncation=True, max_length=128)
