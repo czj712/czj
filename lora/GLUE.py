@@ -77,5 +77,5 @@ for task in glue_tasks:
     print(f"评估任务 {task}")
     results[task] = trainer.evaluate()
     print(f"任务 {task} 的评估结果: {results[task]}")
-print('所有任务的评估结果:'， results)
+print('所有任务的评估结果:', results)
 wandb.finish()
