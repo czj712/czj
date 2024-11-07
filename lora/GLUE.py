@@ -68,7 +68,7 @@ for task in glue_tasks:
         logging_dir=f"/users/u202220081001066/outputs/logs/{task}",
         output_dir=output_dir,
         report_to="wandb"
-    )
+    ))
 
     print(f"开始任务 {task} 的训练")
     trainer.train()
