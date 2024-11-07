@@ -44,7 +44,9 @@ for task in glue_tasks:
         except KeyError as e:
             print(f"任务 {task} 缺少列: {e}")
             return None  # 返回 None 以避免 map 函数崩溃
-    
+    encoded_dataset = dataset.map(preprocess_function, batched=True)
+    train_dataset = encoded_dataset['train']
+    eval_dataset = encoded_dataset['validation']
 
 # 根据任务标签数量加载模型（某些任务为二分类，其他任务可能为多分类）
     num_labels = 3 if task == "mnli" else 2
