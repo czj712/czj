@@ -25,18 +25,27 @@ for task in glue_tasks:
         try:
         # 根据任务选择合适的输入列
             if task in ["mrpc", "qqp", "stsb", "mnli", "rte", "qnli"]:
+                sentence1 = examples.get("sentence1", [])
+                sentence2 = examples.get("sentence2", [])
+                if not isinstance(sentence1, list):
+                    sentence1 = [sentence1]
+                if not isinstance(sentence2, list):
+                    sentence2 = sentence2
             # 双句子输入的任务
                 return tokenizer(
-                examples["sentence1"], 
-                examples["sentence2"], 
+                sentence1, 
+                sentence2, 
                 padding="max_length", 
                 truncation=True, 
                 max_length=128
             )
             else:
             # 单句子输入的任务
+                sentence = examples.get("sentence", "")
+                if not isinstance(sentence, list):
+                    sentence = [sentence]
                 return tokenizer(
-                examples["sentence"], 
+                sentence, 
                 padding="max_length", 
                 truncation=True, 
                 max_length=128
