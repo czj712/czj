@@ -13,8 +13,11 @@ results = {}
 # 初始化结果字典
 for task in glue_tasks:
     # 加载数据集
-    data_dir = f"/home/u202220081001066/glue_datas{task}"
-    dataset = load_dataset("glue", task, data_dir=data_dir)
+    data_files = {
+        "train": f"/home/u202220081001066/glue_datas/{task}/train.tsv",
+        "validation": f"/home/u202220081001066/glue_datas/{task}/dev.tsv"
+    }
+    dataset = load_dataset("csv", data_files=data_files, delimiter="\t")
     model_path = "/home/u202220081001066/roberta-base/"
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     def preprocess_function(examples):
