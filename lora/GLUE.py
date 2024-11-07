@@ -2,7 +2,7 @@ import torch
 from datasets import load_dataset
 from peft import VeraConfig, get_peft_model, PeftModel
 import transformers
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainr, TrainingArguments, DataCollatorForLanguageModeling
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments, DataCollatorForLanguageModeling
 import wandb
 wandb.init(project="roBerta-base-glue")
 
@@ -41,7 +41,7 @@ for task in glue_tasks:
     model.print_trainable_parameters()
 
 
-    output_dir = f."/users/u202220081001066/outputs/results/{task}""
+    output_dir = f."/users/u202220081001066/outputs/results/{task}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 # 初始化 Trainer
@@ -52,8 +52,8 @@ for task in glue_tasks:
         return {"accuracy": accuracy}
     trainer = Trainer(
     model=model,
-    train_dataset=train_data,
-    eval_dataset=test_data,
+    train_dataset=train_dataset,
+    eval_dataset=eval_dataset,
     compute_metrics=compute_metrics,
     tokenizer=tokenizer,
     args=TrainingArguments(
@@ -77,12 +77,5 @@ for task in glue_tasks:
     print(f"评估任务 {task}")
     results[task] = trainer.evaluate()
     print(f"任务 {task} 的评估结果: {results[task]}")
-
-# 保存和上传 Lora 适配器
-adapter_output_dir = os.path.join(output_dir, "rmavt_adapter")
-if not os.path.exists(adapter_output_dir):
-    os.makedirs(adapter_output_dir)
-
-trainer.model.save_pretrained(adapter_output_dir)
-tokenizer.save_pretrained(adapter_output_dir)
+print('所有任务的评估结果:'， results)
 wandb.finish()
