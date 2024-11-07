@@ -17,7 +17,7 @@ for task in glue_tasks:
         "train": f"/home/u202220081001066/glue_datas/{task}/train.tsv",
         "validation": f"/home/u202220081001066/glue_datas/{task}/dev.tsv"
     }
-    dataset = load_dataset("csv", data_files=data_files, delimiter="\t")
+    dataset = load_dataset("csv", data_files=data_files, delimiter="\t", column_names=["sentence", "label"], header=None)
     model_path = "/home/u202220081001066/roberta-base/"
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     def preprocess_function(examples):
