@@ -21,13 +21,29 @@ for task in glue_tasks:
     model_path = "/home/u202220081001066/roberta-base/"
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     def preprocess_function(examples):
-        if task in ["MRPC", "QQP", "STSB", "MNLI", "RTE", "QNLI"]:
-            return tokenizer(examples["sentence1"], examples["sentence2"], padding="max_length", truncation=True, max_length=128)
-        else:
-            return tokenizer(examples["sentence"], padding="max_length", truncation=True, max_length=128)
-    encoded_dataset = dataset.map(preprocess_function, batched = True)
-    train_dataset = encoded_dataset['train']
-    eval_dataset = encoded_dataset['validation']
+        try:
+        # 根据任务选择合适的输入列
+            if task in ["mrpc", "qqp", "stsb", "mnli", "rte", "qnli"]:
+            # 双句子输入的任务
+                return tokenizer(
+                examples["sentence1"], 
+                examples["sentence2"], 
+                padding="max_length", 
+                truncation=True, 
+                max_length=128
+            )
+            else:
+            # 单句子输入的任务
+                return tokenizer(
+                examples["sentence"], 
+                padding="max_length", 
+                truncation=True, 
+                max_length=128
+            )
+        except KeyError as e:
+            print(f"任务 {task} 缺少列: {e}")
+            return None  # 返回 None 以避免 map 函数崩溃
+    
 
 # 根据任务标签数量加载模型（某些任务为二分类，其他任务可能为多分类）
     num_labels = 3 if task == "mnli" else 2
