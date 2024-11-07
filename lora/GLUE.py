@@ -30,7 +30,7 @@ for task in glue_tasks:
                 if not isinstance(sentence1, list):
                     sentence1 = [sentence1]
                 if not isinstance(sentence2, list):
-                    sentence2 = sentence2
+                    sentence2 = [sentence2]
             # 双句子输入的任务
                 return tokenizer(
                 sentence1, 
@@ -41,7 +41,7 @@ for task in glue_tasks:
             )
             else:
             # 单句子输入的任务
-                sentence = examples["sentence"] if sentence in examples else ""
+                sentence = examples["sentence"] if "sentence" in examples else ""
                 if not isinstance(sentence, list):
                     sentence = [sentence]
                 return tokenizer(
