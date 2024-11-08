@@ -27,7 +27,11 @@ def preprocess_function(examples):
                 truncation=True, 
                 max_length=128
             )
-    inputs["labels"] = [int(label) for label in examples["is_duplicate"]]
+    try:
+        inputs["labels"] = [int(label) for label in examples["is_duplicate"]]
+    except ValueError as e:
+        print(f"Invalid value in 'is_duplicate' column: {examples['is_duplicate']}")
+        raise e
     return inputs
 encoded_dataset = dataset.map(preprocess_function, batched=True)
 train_dataset = encoded_dataset['train']
