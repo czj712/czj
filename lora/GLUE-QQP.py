@@ -17,13 +17,8 @@ dataset = load_dataset("csv", data_files=data_files, delimiter="\t", column_name
 model_path = "/home/u202220081001066/roberta-base/"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 def preprocess_function(examples):
-    question1 = examples.get("question1", [""])
-    question2 = examples.get("question2", [""])
-    if not isinstance(question1, list):
-        question1 = [question1]
-    if not isinstance(question2, list):
-        question2 = [question2]
-            # 双句子输入的任务
+    question1 = examples["question1"]
+    question2 = examples["question2"]
     return tokenizer(
                 question1, 
                 question2, 
