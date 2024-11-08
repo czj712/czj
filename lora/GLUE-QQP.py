@@ -64,6 +64,7 @@ def compute_metrics(p):
     predictions, labels = p
     preds = predictions.argmax(axis=-1)
     accuracy = (preds == labels).astype(float).mean()
+    print(f"Accuracy:{accuracy}")
     return {"accuracy": accuracy}
 trainer = Trainer(
     model=model,
