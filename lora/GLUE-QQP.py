@@ -95,7 +95,7 @@ trainer = Trainer(
     ))
 
 print(f"开始任务 {task} 的训练")
-#trainer.train()
+trainer.train()
 
     # 评估
 print(f"评估任务 {task}")
