@@ -16,6 +16,7 @@ data_files = {
 dataset = load_dataset("csv", data_files=data_files, delimiter="\t", column_names=["question1", "question2" "label"], header=None)
 model_path = "/home/u202220081001066/roberta-base/"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
+print("Columns in the dataset:", dataset["train"].column_names)
 def preprocess_function(examples):
     question1 = examples["question1"]
     question2 = examples["question2"]
