@@ -13,7 +13,7 @@ data_files = {
         "train": f"/home/u202220081001066/glue_datas/{task}/train.tsv",
         "validation": f"/home/u202220081001066/glue_datas/{task}/dev.tsv"
     }
-dataset = load_dataset("csv", data_files=data_files, delimiter="\t", column_names=["question1", "question2" "label"], header=None)
+dataset = load_dataset("csv", data_files=data_files, delimiter="\t", column_names=["id", "qid1", "qid2", "question1", "question2", "is_duplicate"], header=None)
 model_path = "/home/u202220081001066/roberta-base/"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 print("Columns in the dataset:", dataset["train"].column_names)
