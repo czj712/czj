@@ -20,13 +20,15 @@ print("Columns in the dataset:", dataset["train"].column_names)
 def preprocess_function(examples):
     question1 = examples["question1"]
     question2 = examples["question2"]
-    return tokenizer(
+    inputs = tokenizer(
                 question1, 
                 question2, 
                 padding="max_length", 
                 truncation=True, 
                 max_length=128
             )
+    inputs["labels"] = [int(label) for label in examples["is_duplicate"]]
+    return inputs
 encoded_dataset = dataset.map(preprocess_function, batched=True)
 train_dataset = encoded_dataset['train']
 eval_dataset = encoded_dataset['validation']
