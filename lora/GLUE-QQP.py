@@ -91,5 +91,5 @@ print(f"开始任务 {task} 的训练")
     # 评估
 print(f"评估任务 {task}")
 evaluation_results = trainer.evaluate()
-print(f"任务 {task} 的评估结果: {results[task]}")
+print(f"任务 {task} 的评估结果: "evaluation_results")
 wandb.finish()
