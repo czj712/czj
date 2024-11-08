@@ -61,10 +61,18 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 # 初始化 Trainer
 def compute_metrics(p):
-    predictions, labels = p
+    # Check the type and content of `p` to make sure it's in the expected format
+    print(f"Received data in `compute_metrics`: {type(p)}, {p.keys() if isinstance(p, dict) else None}")
+    
+    predictions = p["logits"]  # Accessing logits from `p`
+    labels = p["label_ids"]  # Accessing labels from `p`
+    
+    # Compute the predicted classes and accuracy
     preds = predictions.argmax(axis=-1)
     accuracy = (preds == labels).astype(float).mean()
-    print(f"Accuracy:{accuracy}")
+    
+    # Print accuracy for verification
+    print(f"Accuracy computed in `compute_metrics`: {accuracy}")
     return {"accuracy": accuracy}
 trainer = Trainer(
     model=model,
