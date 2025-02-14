@@ -174,8 +174,10 @@ class VeraModel(BaseTuner):
             vera_A = torch.cat([vera_A, torch.zeros(linear_out_dim - vera_A.shape[0], config.r)], dim=0)
         
         # use of persistent to exclude vera_A and vera_B from the state dict if we choose not to save them.
-        self.vera_A = BufferDict({adapter_name: vera_A}, persistent=config.save_projection)
-        self.vera_B = BufferDict({adapter_name: vera_B}, persistent=config.save_projection)
+        self.vera_A = BufferDict({}, persistent=config.save_projection)
+        self.vera_B = BufferDict({}, persistent=config.save_projection)
+        self.vera_A[adapter_name] = vera_A
+        self.vera_B[adapter_name] = vera_B
 
 
     def _pre_injection_hook(self, model: nn.Module, config: VeraConfig, adapter_name: str) -> None:
