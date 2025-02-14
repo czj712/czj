@@ -144,9 +144,29 @@ class VeraConfig(PeftConfig):
             )
         },
     )
+    svd_init: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "Whether to initialize matrix A with SVD decomposition of the pretrained weights. "
+                "If True, A will use SVD initialization while B remains random."
+            )
+        },
+    )
+    lambda_lr_ratio: float = field(
+        default=10.0,
+        metadata={
+            "help": (
+                "Learning rate ratio for lambda_b vs lambda_d (lr_lambda_b = lr_lambda_d * ratio). "
+                "Recommended values between 8-16 based on LoRA+ paper."
+            )
+        },
+    )
 
     def __post_init__(self):
         super().__post_init__()
+        if self.lambda_lr_ratio <= 0:
+            raise ValueError("lambda_lr_ratio must be a positive number")
         self.peft_type = PeftType.VERA
         self.target_modules = (
             set(self.target_modules) if isinstance(self.target_modules, list) else self.target_modules
