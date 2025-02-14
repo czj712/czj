@@ -42,8 +42,8 @@ class VeraLayer(BaseTunerLayer):
 
         # Stores a reference to the vera_A/B BufferDict.
         # Set to `None` otherwise to avoid computation with random weights
-        self.vera_A = BufferDict({})
-        self.vera_B = BufferDict({})
+        self.vera_A: Optional[BufferDict] = None
+        self.vera_B: Optional[BufferDict] = None
 
         # Mark the weight as unmerged
         self._disable_adapters = False
@@ -68,56 +68,70 @@ class VeraLayer(BaseTunerLayer):
     def update_layer(
         self,
         adapter_name,
+        vera_A: BufferDict,
+        vera_B: BufferDict,
         r,
         vera_dropout,
         init_weights,
-	d_initial: float = 0.1,
-	svd_init: bool = True,
+        d_initial: float = 0.1,
     ):
         if r <= 0:
             raise ValueError(f"`r` should be a positive integer value but the value passed is {r}")
         self.r[adapter_name] = r
-	self.d_initial = d_initial
         if vera_dropout > 0.0:
             vera_dropout_layer = nn.Dropout(p=vera_dropout)
         else:
             vera_dropout_layer = nn.Identity()
-        self.d_initial = d_initial
+
         self.vera_dropout.update(nn.ModuleDict({adapter_name: vera_dropout_layer}))
         # Actual trainable parameters
         self.vera_lambda_b[adapter_name] = nn.Parameter(torch.ones(self.out_features), requires_grad=True)
-        self.vera_lambda_d[adapter_name] = nn.Parameter(torch.randn(r), requires_grad=True)     
-        self.vera_A[adapter_name] = nn.Parameter(torch.empty(self.out_features, r), requires_grad=False)
-        self.vera_B[adapter_name] = nn.Parameter(torch.empty(r, self.in_features), requires_grad=False)
+        self.vera_lambda_d[adapter_name] = nn.Parameter(torch.randn(r), requires_grad=True)
+
+        # non trainable references to vera_A/B buffers
+        self.vera_A = vera_A
+        self.vera_B = vera_B
+        if adapter_name not in vera_A:
+            # This means that this is not the first VeRA adapter. We have to add an entry in the dict for this adapter.
+            if len(self.vera_A) < 1:
+                raise ValueError(
+                    "The `vera_A` and `vera_B` buffers are empty. This should not happen. Please report this issue."
+                )
+            # we can take any of the existing adapter's parameters, as they should all be identical
+            vera_A_param = list(self.vera_A.values())[0]
+            vera_B_param = list(self.vera_B.values())[0]
+
+            error_tmpl = (
+                "{} has a size of {} but {} or greater is required; this probably happened because an additional VeRA "
+                "adapter was added after the first one with incompatible shapes."
+            )
+            # check input size
+            if vera_A_param.shape[1] < self.in_features:
+                raise ValueError(error_tmpl.format("vera_A", vera_A_param.shape[1], self.in_features))
+            # check output size
+            if vera_B_param.shape[0] < self.out_features:
+                raise ValueError(error_tmpl.format("vera_B", vera_B_param.shape[0], self.out_features))
+            # check r
+            error_tmpl = (
+                "{} has a size of {} but {} or greater is required; this probably happened because an additional VeRA "
+                "adapter with a lower rank was added after the first one; loading the adapters "
+                "in reverse order may solve this."
+            )
+            if vera_A_param.shape[0] < self.r[adapter_name]:
+                raise ValueError(error_tmpl.format("vera_A", vera_A_param.shape[0], self.r[adapter_name]))
+            if vera_B_param.shape[1] < self.r[adapter_name]:
+                raise ValueError(error_tmpl.format("vera_B", vera_B_param.shape[1], self.r[adapter_name]))
+
+            self.vera_A[adapter_name] = vera_A_param
+            self.vera_B[adapter_name] = vera_B_param
 
         if init_weights:
-            if svd_init:
-                self.initialize_with_svd(adapter_name)
-            else:
-                self.reset_vera_parameters(adapter_name, d_initial = d_initial)
+            self.reset_vera_parameters(adapter_name, d_initial=d_initial)
+
         self._move_adapter_to_device_of_base_layer(adapter_name)
         self.set_adapter(self.active_adapters)
-    
-    def initialize_with_svd(self, adapter_name):
-	# 获取base_layer的权重
-        base_layer = self.get_base_layer()
-        W = base_layer.weight.data.float()	
-	#执行截断SVD
-        U, S, Vh = torch.linalg.svd(W, full_matrices=False)
-        U = U[:, :self.r[adapter_name]]
-        S = S[:self.r[adapter_name]]
-	#初始化vera_A和vera_B
-        vera_A_init = (U * torch.sqrt(S).unsqueeze(0)).to(W.device)
-        vera_B_init = torch.randn(self.r[adapter_name], self.in_features, device=W.device)
-	#将初始化值存入vera_A和vera_B
-        self.vera_A[adapter_name].data.copy_(vera_A_init)
-        self.vera_B[adapter_name].data.copy_(vera_B_init)
-        d_initial = self.d_initial
-   	# 初始化 lambda_d 和 lambda_b
-        self.vera_lambda_d[adapter_name].data.fill_(d_initial)
-        self.vera_lambda_b[adapter_name].data.zero_()
-	
-    def reset_vera_parameters(self, adapter_name, d_initial):
+
+    def reset_vera_parameters(self, adapter_name, d_initial: float = 0.1):
         if adapter_name in self.vera_lambda_d.keys():
             with torch.no_grad():
                 nn.init.zeros_(self.vera_lambda_d[adapter_name]).fill_(d_initial)
@@ -129,29 +143,24 @@ class Linear(nn.Linear, VeraLayer):
     def __init__(
         self,
         base_layer,
+        vera_A: BufferDict,
+        vera_B: BufferDict,
         adapter_name: str,
+        r: int = 0,
+        vera_dropout: float = 0.0,
+        fan_in_fan_out: bool = False,  # Set this to True if the layer to replace stores weight like (fan_in, fan_out)
+        is_target_conv_1d_layer: bool = False,
+        init_weights: bool = True,
+        d_initial: float = 0.1,
         **kwargs,
     ) -> None:
         # this gets the init from nn.Linear's super perspective, i.e. nn.Module.__init__, which should always be called
-        r = kwargs.pop('r')
-        vera_dropout = kwargs.pop('vera_dropout', 0.0)
-        fan_in_fan_out = kwargs.pop('fan_in_fan_out', False)
-        is_target_conv_1d_layer = kwargs.pop('is_target_conv_1d_layer', False)
-        init_weights = kwargs.pop('init_weights', True)
-        d_initial = kwargs.pop('d_initial', 0.1)
-        svd_init = kwargs.pop('svd_init', True)
-        bias = kwargs.pop('bias', base_layer.bias is not None)
-        nn.Linear.__init__(
-            self,
-            in_features=base_layer.in_features,
-            out_features=base_layer.out_features,
-            bias=base_layer.bias is not None,
-        )
+        super(nn.Linear, self).__init__()
         VeraLayer.__init__(self, base_layer, **kwargs)
         self.fan_in_fan_out = fan_in_fan_out
 
         self._active_adapter = adapter_name
-        self.update_layer(adapter_name, r, vera_dropout, init_weights, d_initial, svd_init)
+        self.update_layer(adapter_name, vera_A, vera_B, r, vera_dropout, init_weights, d_initial=d_initial)
         self.is_target_conv_1d_layer = is_target_conv_1d_layer
 
     def merge(self, safe_merge: bool = False, adapter_names: Optional[List[str]] = None) -> None:
@@ -217,9 +226,9 @@ class Linear(nn.Linear, VeraLayer):
         dtype = vera_B.dtype
 
         # In case users wants to merge the adapter weights that are in
-        # float16 while being on CPU, we need to cast the weights to float32, perform the merge and then cast back to
-        # float16 because the `@` and matmul operation in general is not supported in torch + cpu + fp16.
-        cast_to_fp32 = device.type == "cpu" and dtype == torch.float16
+        # (b)float16 while being on CPU, we need to cast the weights to float32, perform the merge and then cast back to
+        # (b)float16 because some CPUs have slow bf16/fp16 matmuls.
+        cast_to_fp32 = device.type == "cpu" and (dtype == torch.float16 or dtype == torch.bfloat16)
 
         lambda_d = self.vera_lambda_d[adapter]
         lambda_b = self.vera_lambda_b[adapter]
@@ -230,8 +239,8 @@ class Linear(nn.Linear, VeraLayer):
             lambda_d = lambda_d.float()
             lambda_b = lambda_b.float()
 
-        sliced_A = vera_A[:, : self.in_features]
-        sliced_B = vera_B[: self.out_features, :]
+        sliced_A = vera_A[:, : self.in_features].to(lambda_d.device)
+        sliced_B = vera_B[: self.out_features, :].to(lambda_d.device)
         lambda_b = lambda_b.unsqueeze(-1)
         lambda_d = lambda_d.unsqueeze(-1)
         output_tensor = transpose((lambda_b * sliced_B) @ (lambda_d * sliced_A), self.fan_in_fan_out)
@@ -270,8 +279,8 @@ class Linear(nn.Linear, VeraLayer):
                 # As adapted layers may have different shapes and VeRA contains a single shared pair of A and B matrices,
                 # we initialize these matrices with the largest required size for each dimension.
                 # During the forward pass, required submatrices are sliced out from the shared vera_A and vera_B.
-                sliced_A = vera_A[:, : self.in_features]
-                sliced_B = vera_B[: self.out_features, :]
+                sliced_A = vera_A[:, : self.in_features].to(x.device)
+                sliced_B = vera_B[: self.out_features, :].to(x.device)
 
                 dropout = self.vera_dropout[active_adapter]
                 x = x.to(lambda_d.dtype)
