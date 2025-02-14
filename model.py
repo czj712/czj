@@ -12,499 +12,283 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import annotations
-
-import math
 import warnings
-from dataclasses import asdict
-from enum import Enum
-from typing import Optional, Union
+from typing import List, Optional
 
 import torch
 import torch.nn as nn
-from torch.nn.init import _calculate_correct_fan
-from tqdm import tqdm
+import torch.nn.functional as F
 from transformers.pytorch_utils import Conv1D
 
-from peft.tuners.tuners_utils import BaseTuner, BaseTunerLayer, check_target_module_exists
-from peft.utils import (
-    TRANSFORMERS_MODELS_TO_VERA_TARGET_MODULES_MAPPING,
-    ModulesToSaveWrapper,
-    _get_submodules,
-)
+from peft.tuners.tuners_utils import BaseTunerLayer, check_adapters_to_merge
+from peft.utils.other import transpose
 
 from .._buffer_dict import BufferDict
-from ..tuners_utils import _maybe_include_all_linear_layers
-from .config import VeraConfig
-from .layer import Linear, VeraLayer
 
 
-def _kaiming_init(
-    tensor_or_shape: Union[torch.Tensor, tuple[int, ...]],
-    generator: torch.Generator,
-) -> torch.Tensor:
-    """
-    Kaiming Uniform Initialisation adapted to accept a `torch.Generator` object for PRNG.
+class VeraLayer(BaseTunerLayer):
+    # List all names of layers that may contain adapter weights
+    adapter_layer_names = ("vera_lambda_b", "vera_lambda_d")
+    other_param_names = ("vera_A", "vera_B")
 
-    Args:
-        tensor_or_shape (`Union[torch.Tensor, tuple[int, ...]]`):
-            Tensor to initialise, or shape of new tensor to create and then initialise.
-        generator: (`torch.Generator`):
-            Generator object that manages the state of the PRNG algorithm in use.
+    def __init__(self, base_layer: nn.Module, **kwargs):
+        self.base_layer = base_layer
+        self.r = {}
+        self.vera_dropout = nn.ModuleDict({})
 
-    Returns:
-        `torch.Tensor`: The initialised tensor.
-    """
-    if isinstance(tensor_or_shape, tuple):
-        tensor = torch.empty(tensor_or_shape)
-    else:
-        tensor = tensor_or_shape
-    fan = _calculate_correct_fan(tensor, "fan_in")
-    gain = math.sqrt(2)
-    std = gain / math.sqrt(fan)
-    bound = math.sqrt(3.0) * std
+        # For storing vector scale
+        self.vera_lambda_b = nn.ParameterDict({})
+        self.vera_lambda_d = nn.ParameterDict({})
 
-    with torch.no_grad():
-        return tensor.uniform_(-bound, bound, generator=generator)
+        # Stores a reference to the vera_A/B BufferDict.
+        # Set to `None` otherwise to avoid computation with random weights
+        self.vera_A: Optional[BufferDict] = None
+        self.vera_B: Optional[BufferDict] = None
 
+        # Mark the weight as unmerged
+        self._disable_adapters = False
+        self.merged_adapters = []
 
-class VeraModel(BaseTuner):
-    """
-    Creates Vector-based Random Matrix Adaptation (Vera) model from a pretrained transformers model.
-
-    Args:
-        model ([`~transformers.PreTrainedModel`]): The model to be adapted.
-        config ([`VeraConfig`]): The configuration of the Vera model.
-        adapter_name (`str`): The name of the adapter, defaults to `"default"`.
-
-    Returns:
-        `torch.nn.Module`: The Vera model.
-
-    Example:
-
-        ```py
-        >>> from transformers import AutoModelForCausalLM
-        >>> from peft import VeraConfig, get_peft_model
-
-        >>> base_model = AutoModelForCausalLM.from_pretrained("facebook/opt-125m")
-        >>> config = VeraConfig(r=128)
-        >>> model = get_peft_model(base_model, config)
-        ```
-
-    **Attributes**:
-        - **model** ([`~transformers.PreTrainedModel`]) -- The model to be adapted.
-        - **peft_config** ([`VeraConfig`]): The configuration of the Vera model.
-    """
-
-    prefix: str = "vera_lambda"
-
-    def __init__(self, model, config, adapter_name) -> None:
-        super().__init__(model, config, adapter_name)
-
-    def _find_dim(self, config) -> tuple[int, int]:
-        """
-        Finds the largest input and output dimensions across linear layers that have been wrapped with VeRA.
-
-        This will be used for determining the size of the shared vera_A and vera_B matrices.
-        """
-        model_config = getattr(self.model, "config", {"model_type": "custom"})
-        if hasattr(model_config, "to_dict"):
-            model_config = model_config.to_dict()
-
-        peft_config = self._prepare_adapter_config(config, model_config)
-        peft_config = _maybe_include_all_linear_layers(peft_config, self.model)
-
-        largest_shape = None
-        for key, module in self.model.named_modules():
-            if not self._check_target_module_exists(peft_config, key):
-                continue
-
-            if isinstance(module, (nn.Linear, Conv1D)):
-                module_shape = tuple(module.weight.shape)
-                if isinstance(module, Conv1D):
-                    module_shape = module_shape[::-1]
-            else:
-                continue
-
-            if largest_shape is None:
-                largest_shape = module_shape
-                continue
-
-            if module_shape != largest_shape:
-                largest_shape = tuple(max(a, b) for a, b in zip(largest_shape, module_shape))
-
-        if largest_shape is None:
-            msg = "No layers types compatible with VeRA were found. Please check `peft_config.target_modules`."
-            raise ValueError(msg)
-
-        return largest_shape
-
-    def _init_vera_A_vera_B(self, config: VeraConfig, adapter_name: str) -> None:
-         linear_out_dim, linear_in_dim = self._find_dim(config)
-   	 # 使用 persistent 参数来决定是否在 state_dict 中保存 vera_A 和 vera_B
-         self.vera_A = BufferDict({}, persistent=config.save_projection)
-         self.vera_B = BufferDict({}, persistent=config.save_projection)
-         if config.svd_init:
-        # 遍历目标模块，提取权重矩阵，执行 SVD 分解
-           for key, module in self.model.named_modules():
-             if not self._check_target_module_exists(config, key):
-                continue
-             if isinstance(module, (nn.Linear, Conv1D)):
-                W = module.weight.data.float()
-                U, S, Vh = torch.linalg.svd(W, full_matrices=False)
-                U = U[:, :config.r]
-                # 初始化 vera_A
-                vera_A = (U * torch.sqrt(S[:config.r])).to(W.device)
-                self.vera_A[adapter_name] = vera_A
-                break  # 假设所有目标模块的权重矩阵都是相似的，只需要初始化一次
-         else:
-       		 # 使用 Kaiming 初始化 vera_A
-            generator = torch.Generator(device="cpu").manual_seed(config.projection_prng_key)
-            vera_A = _kaiming_init((config.r, linear_in_dim), generator=generator)
-            self.vera_A[adapter_name] = vera_A
-
-   	 # 无论是否使用 SVD，都随机初始化 vera_B
-         generator = torch.Generator(device="cpu").manual_seed(config.projection_prng_key)
-         vera_B = _kaiming_init((linear_out_dim, config.r), generator=generator)
-         self.vera_B[adapter_name] = vera_B
-
-
-    def _pre_injection_hook(self, model: nn.Module, config: VeraConfig, adapter_name: str) -> None:
-        self._init_vera_A_vera_B(config, adapter_name)
-	
-    def parameters_to_optimize(self, lambda_type: str):
-   	 """
-   	 获取指定类型的参数列表，用于设置优化器的参数组。
-
-   	 Args:
-        	lambda_type (str): 参数类型，'lambda_b' 或 'lambda_d'。
-
-   	 Returns:
-        	List[nn.Parameter]: 参数列表。
-  	  """
-   	 params = []
-   	 for module in self.model.modules():
-             if isinstance(module, VeraLayer):
-                if lambda_type == 'lambda_b':
-                    params.extend(module.vera_lambda_b.parameters())
-                elif lambda_type == 'lambda_d':
-                     params.extend(module.vera_lambda_d.parameters())
-   	 return params
-    def _check_new_adapter_config(self, config: VeraConfig) -> None:
-        """
-        A helper method to check the config when a new adapter is being added.
-
-        Raise a ValueError if there is something wrong with the config or if it conflicts with existing adapters.
-
-        """
-        # the below todo is copied from LoRA
-        # TODO: there should be a check if any of the existing adapters actually has bias != "none", or else the check
-        # does not fully correspond to the error message.
-        if (len(self.peft_config) > 1) and (config.bias != "none"):
-            raise ValueError(
-                f"{self.__class__.__name__} supports only 1 adapter with bias. When using multiple adapters, "
-                "set bias to 'none' for all adapters."
+        base_layer = self.get_base_layer()
+        if isinstance(base_layer, nn.Linear):
+            in_features, out_features = base_layer.in_features, base_layer.out_features
+        elif isinstance(base_layer, Conv1D):
+            in_features, out_features = (
+                base_layer.weight.ds_shape if hasattr(base_layer.weight, "ds_shape") else base_layer.weight.shape
             )
 
-        for existing_config in self.peft_config.values():
-            if existing_config is config:
-                # skip the current config
-                continue
+        self.in_features = in_features
+        self.out_features = out_features
+        self.kwargs = kwargs
 
-            if existing_config.projection_prng_key != config.projection_prng_key:
-                raise ValueError(
-                    f"Vera PRNG initialisation key must be the same for all adapters. Got {config.projection_prng_key=} but "
-                    f"previous config had {existing_config.projection_prng_key}."
-                )
+    @property
+    def merged(self) -> bool:
+        return bool(self.merged_adapters)
 
-        save_project_unique_values = sorted({config.save_projection for config in self.peft_config.values()})
-        if len(save_project_unique_values) > 1:
-            raise ValueError(
-                "VeRA projection weights must be saved for all adapters or none, but got multiple different values: "
-                f"{save_project_unique_values}"
-            )
-
-    @staticmethod
-    def _check_target_module_exists(vera_config, key):
-        return check_target_module_exists(vera_config, key)
-
-    def _create_and_replace(
+    def update_layer(
         self,
-        vera_config,
         adapter_name,
-        target,
-        target_name,
-        parent,
-        current_key,
-        **optional_kwargs,
+        vera_A: BufferDict,
+        vera_B: BufferDict,
+        r,
+        vera_dropout,
+        init_weights,
+        d_initial: float = 0.1,
     ):
-        if current_key is None:
-            raise ValueError("Current Key shouldn't be `None`")
-
-        r = vera_config.r
-        bias = hasattr(target, "bias") and target.bias is not None
-        kwargs = {
-            "r": r,
-            "vera_dropout": vera_config.vera_dropout,
-            "fan_in_fan_out": vera_config.fan_in_fan_out,
-            "init_weights": vera_config.init_weights,
-	    "d_initial": vera_config.d_initial,
-	    "svd_init": vera_config.svd_init,
-        }
-        kwargs["bias"] = bias
-        # TODO: add quantization support
-
-        if isinstance(target, Linear):
-            target.update_layer(
-                adapter_name,
-                self.vera_A,
-                self.vera_B,
-                r,
-                vera_config.vera_dropout,
-                vera_config.init_weights,
-                d_initial=vera_config.d_initial,
-		svd_init = vera_config.svd_init,
-            )
+        if r <= 0:
+            raise ValueError(f"`r` should be a positive integer value but the value passed is {r}")
+        self.r[adapter_name] = r
+        if vera_dropout > 0.0:
+            vera_dropout_layer = nn.Dropout(p=vera_dropout)
         else:
-            new_module = self._create_new_module(vera_config, self.vera_A, self.vera_B, adapter_name, target, **kwargs)
-            if adapter_name not in self.active_adapter:
-                # adding an additional adapter: it is not automatically trainable
-                new_module.requires_grad_(False)
-            self._replace_module(parent, target_name, new_module, target)
+            vera_dropout_layer = nn.Identity()
 
-    @staticmethod
-    def _replace_module(parent, child_name, new_module, child):
-        setattr(parent, child_name, new_module)
-        # It's not necessary to set requires_grad here, as that is handled by
-        # _mark_only_adapters_as_trainable
+        self.vera_dropout.update(nn.ModuleDict({adapter_name: vera_dropout_layer}))
+        # Actual trainable parameters
+        self.vera_lambda_b[adapter_name] = nn.Parameter(torch.ones(self.out_features), requires_grad=True)
+        self.vera_lambda_d[adapter_name] = nn.Parameter(torch.randn(r), requires_grad=True)
 
-        # child layer wraps the original module, unpack it
-        if hasattr(child, "base_layer"):
-            child = child.base_layer
-
-        if not hasattr(new_module, "base_layer"):
-            new_module.weight = child.weight
-            if hasattr(child, "bias"):
-                new_module.bias = child.bias
-
-        if getattr(child, "state", None) is not None:
-            if hasattr(new_module, "base_layer"):
-                new_module.base_layer.state = child.state
-            else:
-                new_module.state = child.state
-            new_module.to(child.weight.device)
-
-        # dispatch to correct device
-        for name, module in new_module.named_modules():
-            if "vera_" in name:
-                module.to(child.weight.device)
-
-    def _mark_only_adapters_as_trainable(self, model: nn.Module) -> None:
-        for n, p in model.named_parameters():
-            if self.prefix not in n:
-                p.requires_grad = False
-
-        for active_adapter in self.active_adapters:
-            bias = self.peft_config[active_adapter].bias
-            if bias == "none":
-                continue
-
-            if bias == "all":
-                for n, p in model.named_parameters():
-                    if "bias" in n:
-                        p.requires_grad = True
-            elif bias == "vera_only":
-                for m in model.modules():
-                    if isinstance(m, VeraLayer) and hasattr(m, "bias") and m.bias is not None:
-                        m.bias.requires_grad = True
-            else:
-                raise NotImplementedError(f"Requested bias: {bias}, is not implemented.")
-
-    @staticmethod
-    def _create_new_module(vera_config, vera_A, vera_B, adapter_name, target, **kwargs):
-        bias = hasattr(target, 'bias') and target.bias is not None
-        kwargs.update({
-        "r": vera_config.r,
-        "vera_dropout": vera_config.vera_dropout,
-        "fan_in_fan_out": vera_config.fan_in_fan_out,
-        "init_weights": vera_config.init_weights,
-        "d_initial": vera_config.d_initial,
-        "svd_init": vera_config.svd_init,
-        "bias": bias,
-    })
-        if isinstance(target, BaseTunerLayer):
-            target_base_layer = target.get_base_layer()
-        else:
-            target_base_layer = target
-
-        if isinstance(target_base_layer, torch.nn.Linear):
-            if kwargs["fan_in_fan_out"]:
-                warnings.warn(
-                    "fan_in_fan_out is set to True but the target module is `torch.nn.Linear`. "
-                    "Setting fan_in_fan_out to False."
+        # non trainable references to vera_A/B buffers
+        self.vera_A = vera_A
+        self.vera_B = vera_B
+        if adapter_name not in vera_A:
+            # This means that this is not the first VeRA adapter. We have to add an entry in the dict for this adapter.
+            if len(self.vera_A) < 1:
+                raise ValueError(
+                    "The `vera_A` and `vera_B` buffers are empty. This should not happen. Please report this issue."
                 )
-                kwargs["fan_in_fan_out"] = vera_config.fan_in_fan_out = False
-        elif isinstance(target_base_layer, Conv1D):
-            kwargs["is_target_conv_1d_layer"] = True
-            if not kwargs["fan_in_fan_out"]:
-                warnings.warn(
-                    "fan_in_fan_out is set to False but the target module is `Conv1D`. "
-                    "Setting fan_in_fan_out to True."
-                )
-                kwargs["fan_in_fan_out"] = vera_config.fan_in_fan_out = True
-        else:
-            raise ValueError(
-                f"Target module {target} is not supported. Currently, only the following modules are supported: "
-                "`torch.nn.Linear`, `transformers.pytorch_utils.Conv1D`."
+            # we can take any of the existing adapter's parameters, as they should all be identical
+            vera_A_param = list(self.vera_A.values())[0]
+            vera_B_param = list(self.vera_B.values())[0]
+
+            error_tmpl = (
+                "{} has a size of {} but {} or greater is required; this probably happened because an additional VeRA "
+                "adapter was added after the first one with incompatible shapes."
             )
-        new_module = Linear(
-            base_layer=target,
-            adapter_name=adapter_name,
-            **kwargs,
-        )
-
-        return new_module
-
-    def __getattr__(self, name: str):
-        """Forward missing attributes to the wrapped module."""
-        try:
-            return super().__getattr__(name)  # defer to nn.Module's logic
-        except AttributeError:
-            return getattr(self.model, name)
-
-    def get_peft_config_as_dict(self, inference: bool = False):
-        config_dict = {}
-        for key, value in self.peft_config.items():
-            config = {k: v.value if isinstance(v, Enum) else v for k, v in asdict(value).items()}
-            if inference:
-                config["inference_mode"] = True
-        config_dict[key] = config
-        return config
-
-    def _set_adapter_layers(self, enabled=True):
-        for module in self.model.modules():
-            if isinstance(module, (BaseTunerLayer, ModulesToSaveWrapper)):
-                module.enable_adapters(enabled)
-
-    def enable_adapter_layers(self):
-        self._set_adapter_layers(enabled=True)
-
-    def disable_adapter_layers(self):
-        for active_adapter in self.active_adapters:
-            val = self.peft_config[active_adapter].bias
-            if val != "none":
-                msg = (
-                    f"Careful, disabling adapter layers with bias configured to be '{val}' does not produce the same "
-                    "output as the the base model would without adaption."
-                )
-                warnings.warn(msg)
-        self._set_adapter_layers(enabled=False)
-
-    def set_adapter(self, adapter_name):
-        for module in self.model.modules():
-            if isinstance(module, VeraLayer):
-                if module.merged:
-                    warnings.warn("Adapter cannot be set when the model is merged. Unmerging the model first.")
-                    module.unmerge()
-                module.set_adapter(adapter_name)
-        self.active_adapter = adapter_name
-
-    @staticmethod
-    def _prepare_adapter_config(peft_config, model_config):
-        if peft_config.target_modules is None:
-            if model_config["model_type"] not in TRANSFORMERS_MODELS_TO_VERA_TARGET_MODULES_MAPPING:
-                raise ValueError("Please specify `target_modules` in `peft_config`")
-            peft_config.target_modules = set(
-                TRANSFORMERS_MODELS_TO_VERA_TARGET_MODULES_MAPPING[model_config["model_type"]]
+            # check input size
+            if vera_A_param.shape[1] < self.in_features:
+                raise ValueError(error_tmpl.format("vera_A", vera_A_param.shape[1], self.in_features))
+            # check output size
+            if vera_B_param.shape[0] < self.out_features:
+                raise ValueError(error_tmpl.format("vera_B", vera_B_param.shape[0], self.out_features))
+            # check r
+            error_tmpl = (
+                "{} has a size of {} but {} or greater is required; this probably happened because an additional VeRA "
+                "adapter with a lower rank was added after the first one; loading the adapters "
+                "in reverse order may solve this."
             )
-        return peft_config
+            if vera_A_param.shape[0] < self.r[adapter_name]:
+                raise ValueError(error_tmpl.format("vera_A", vera_A_param.shape[0], self.r[adapter_name]))
+            if vera_B_param.shape[1] < self.r[adapter_name]:
+                raise ValueError(error_tmpl.format("vera_B", vera_B_param.shape[1], self.r[adapter_name]))
 
-    def _unload_and_optionally_merge(
+            self.vera_A[adapter_name] = vera_A_param
+            self.vera_B[adapter_name] = vera_B_param
+
+        if init_weights:
+            self.reset_vera_parameters(adapter_name, d_initial=d_initial)
+
+        self._move_adapter_to_device_of_base_layer(adapter_name)
+        self.set_adapter(self.active_adapters)
+
+    def reset_vera_parameters(self, adapter_name, d_initial: float = 0.1):
+        if adapter_name in self.vera_lambda_d.keys():
+            with torch.no_grad():
+                nn.init.zeros_(self.vera_lambda_d[adapter_name]).fill_(d_initial)
+                nn.init.zeros_(self.vera_lambda_b[adapter_name])
+
+
+class Linear(nn.Linear, VeraLayer):
+    # Vera implemented in a dense layer
+    def __init__(
         self,
-        merge=True,
-        progressbar: bool = False,
-        safe_merge: bool = False,
-        adapter_names: Optional[list[str]] = None,
-    ):
-        # we cannot use self.prefix as we want to include non-trainable vera parameters
-        key_list = [key for key, _ in self.model.named_modules() if "vera" not in key]
-        desc = "Unloading " + ("and merging " if merge else "") + "model"
-        for key in tqdm(key_list, disable=not progressbar, desc=desc):
-            try:
-                parent, target, target_name = _get_submodules(self.model, key)
-            except AttributeError:
-                continue
+        base_layer,
+        vera_A: BufferDict,
+        vera_B: BufferDict,
+        adapter_name: str,
+        r: int = 0,
+        vera_dropout: float = 0.0,
+        fan_in_fan_out: bool = False,  # Set this to True if the layer to replace stores weight like (fan_in, fan_out)
+        is_target_conv_1d_layer: bool = False,
+        init_weights: bool = True,
+        d_initial: float = 0.1,
+        **kwargs,
+    ) -> None:
+        # this gets the init from nn.Linear's super perspective, i.e. nn.Module.__init__, which should always be called
+        super(nn.Linear, self).__init__()
+        VeraLayer.__init__(self, base_layer, **kwargs)
+        self.fan_in_fan_out = fan_in_fan_out
 
-            if hasattr(target, "base_layer"):
-                if merge:
-                    target.merge(safe_merge=safe_merge, adapter_names=adapter_names)
+        self._active_adapter = adapter_name
+        self.update_layer(adapter_name, vera_A, vera_B, r, vera_dropout, init_weights, d_initial=d_initial)
+        self.is_target_conv_1d_layer = is_target_conv_1d_layer
 
-                self._replace_module(parent, target_name, target.get_base_layer(), target)
-            elif isinstance(target, ModulesToSaveWrapper):
-                # save any additional trainable modules part of `modules_to_save`
-                setattr(parent, target_name, target.modules_to_save[target.active_adapter])
-
-        return self.model
-
-    def delete_adapter(self, adapter_name: str):
+    def merge(self, safe_merge: bool = False, adapter_names: Optional[List[str]] = None) -> None:
         """
-        Deletes an existing adapter.
+        Merge the active adapter weights into the base weights
 
         Args:
-            adapter_name (str): Name of the adapter to be deleted.
-        """
-        if adapter_name not in list(self.peft_config.keys()):
-            raise ValueError(f"Adapter {adapter_name} does not exist")
-        del self.peft_config[adapter_name]
-
-        # we cannot use self.prefix as we want to include non-trainable vera parameters
-        key_list = [key for key, _ in self.model.named_modules() if "vera" not in key]
-        new_adapter = None
-        for key in key_list:
-            _, target, _ = _get_submodules(self.model, key)
-            if isinstance(target, VeraLayer):
-                target.delete_adapter(adapter_name)
-                if new_adapter is None:
-                    new_adapter = target.active_adapter[:]
-
-        self.active_adapter = new_adapter or []
-
-    def merge_and_unload(
-        self, progressbar: bool = False, safe_merge: bool = False, adapter_names: Optional[list[str]] = None
-    ):
-        r"""
-        This method merges the Vera layers into the base model. This is needed if someone wants to use the base model
-        as a standalone model.
-
-        Args:
-            progressbar (`bool`):
-                whether to show a progressbar indicating the unload and merge process
-            safe_merge (`bool`):
-                whether to activate the safe merging check to check if there is any potential Nan in the adapter
-                weights
-            adapter_names (`list[str]`, *optional*):
+            safe_merge (`bool`, *optional*):
+                If True, the merge operation will be performed in a copy of the original weights and check for NaNs
+                before merging the weights. This is useful if you want to check if the merge operation will produce
+                NaNs. Defaults to `False`.
+            adapter_names (`List[str]`, *optional*):
                 The list of adapter names that should be merged. If None, all active adapters will be merged. Defaults
                 to `None`.
-
-        Example:
-
-        ```py
-        >>> from transformers import AutoModelForCausalLM
-        >>> from peft import PeftModel
-
-        >>> base_model = AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b")
-        >>> peft_model_id = "smangrul/falcon-40B-int4-peft-lora-sfttrainer-sample"
-        >>> model = PeftModel.from_pretrained(base_model, peft_model_id)
-        >>> merged_model = model.merge_and_unload()
-        ```
         """
-        return self._unload_and_optionally_merge(
-            progressbar=progressbar, safe_merge=safe_merge, adapter_names=adapter_names
-        )
+        adapter_names = check_adapters_to_merge(self, adapter_names)
+        if not adapter_names:
+            # no adapter to merge
+            return
 
-    def unload(self):
+        for active_adapter in adapter_names:
+            if active_adapter in self.vera_lambda_d.keys():
+                base_layer = self.get_base_layer()
+                if safe_merge:
+                    # Note that safe_merge will be slower than the normal merge
+                    # because of the copy operation.
+                    orig_weights = base_layer.weight.data.clone()
+
+                    orig_weights += self.get_delta_weight(active_adapter)
+
+                    if not torch.isfinite(orig_weights).all():
+                        raise ValueError(
+                            f"NaNs detected in the merged weights. The adapter {active_adapter} seems to be broken"
+                        )
+
+                    base_layer.weight.data = orig_weights
+                else:
+                    base_layer.weight.data += self.get_delta_weight(active_adapter)
+                self.merged_adapters.append(active_adapter)
+
+    def unmerge(self) -> None:
+        if not self.merged:
+            warnings.warn("Already unmerged. Nothing to do.")
+            return
+
+        while len(self.merged_adapters) > 0:
+            active_adapter = self.merged_adapters.pop()
+            if active_adapter in self.vera_lambda_d.keys():
+                self.get_base_layer().weight.data -= self.get_delta_weight(active_adapter)
+
+    def get_delta_weight(self, adapter) -> torch.Tensor:
         """
-        Gets back the base model by removing all the Vera modules without merging. This gives back the original base
-        model.
+        Compute the delta weight for the given adapter.
+
+        Args:
+            adapter (str):
+                The name of the adapter for which the delta weight should be computed.
         """
-        return self._unload_and_optionally_merge(merge=False)
+        vera_A = self.vera_A[adapter]
+        vera_B = self.vera_B[adapter]
+
+        device = vera_B.device
+        dtype = vera_B.dtype
+
+        # In case users wants to merge the adapter weights that are in
+        # (b)float16 while being on CPU, we need to cast the weights to float32, perform the merge and then cast back to
+        # (b)float16 because some CPUs have slow bf16/fp16 matmuls.
+        cast_to_fp32 = device.type == "cpu" and (dtype == torch.float16 or dtype == torch.bfloat16)
+
+        lambda_d = self.vera_lambda_d[adapter]
+        lambda_b = self.vera_lambda_b[adapter]
+
+        if cast_to_fp32:
+            vera_A = vera_A.float()
+            vera_B = vera_B.float()
+            lambda_d = lambda_d.float()
+            lambda_b = lambda_b.float()
+
+        sliced_A = vera_A[:, : self.in_features].to(lambda_d.device)
+        sliced_B = vera_B[: self.out_features, :].to(lambda_d.device)
+        lambda_b = lambda_b.unsqueeze(-1)
+        lambda_d = lambda_d.unsqueeze(-1)
+        output_tensor = transpose((lambda_b * sliced_B) @ (lambda_d * sliced_A), self.fan_in_fan_out)
+
+        if cast_to_fp32:
+            output_tensor = output_tensor.to(dtype=dtype)
+
+            # cast back the weights
+            # TODO: why?
+            self.vera_lambda_d[adapter].data = lambda_d.to(dtype)
+            self.vera_lambda_b[adapter].data = lambda_b.to(dtype)
+
+        return output_tensor
+
+    def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        previous_dtype = x.dtype
+
+        if self.disable_adapters:
+            if self.merged:
+                self.unmerge()
+            result = self.base_layer(x, *args, **kwargs)
+        elif self.merged:
+            result = self.base_layer(x, *args, **kwargs)
+        else:
+            result = self.base_layer(x, *args, **kwargs)
+            for active_adapter in self.active_adapters:
+                if active_adapter not in self.vera_lambda_d.keys():
+                    continue
+
+                lambda_d = self.vera_lambda_d[active_adapter]
+                lambda_b = self.vera_lambda_b[active_adapter]
+
+                vera_A = self.vera_A[active_adapter]
+                vera_B = self.vera_B[active_adapter]
+
+                # As adapted layers may have different shapes and VeRA contains a single shared pair of A and B matrices,
+                # we initialize these matrices with the largest required size for each dimension.
+                # During the forward pass, required submatrices are sliced out from the shared vera_A and vera_B.
+                sliced_A = vera_A[:, : self.in_features].to(x.device)
+                sliced_B = vera_B[: self.out_features, :].to(x.device)
+
+                dropout = self.vera_dropout[active_adapter]
+                x = x.to(lambda_d.dtype)
+                result = result + lambda_b * F.linear(lambda_d * F.linear(dropout(x), sliced_A), sliced_B)
+
+        result = result.to(previous_dtype)
+        return result
+
+    def __repr__(self) -> str:
+        rep = super().__repr__()
+        return "vera." + rep
