@@ -86,13 +86,13 @@ def get_parameter_groups(model, base_lr, lambda_lr_ratio):
         
 
 class CustomTrainer(SFTTrainer):
-    def __init__(self, *args, peft_config=None, **kwargs):
+    def __init__(self, *args, vera_config=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.peft_config = peft_config
+        self.peft_config = vera_config
     def create_optimizer(self):
         if self.optimizer is None:
             base_lr = self.args.learning_rate
-            lambda_lr_ratio = self.vera_config.lambda_lr_ratio
+            lambda_lr_ratio = self.peft_config.lambda_lr_ratio
             parameter_groups = get_parameter_groups(self.model, base_lr, lambda_lr_ratio)
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
             self.optimizer = optimizer_cls(parameter_groups, **optimizer_kwargs)
