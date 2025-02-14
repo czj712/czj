@@ -97,9 +97,9 @@ class CustomTrainer(SFTTrainer):
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
             self.optimizer = optimizer_cls(parameter_groups, **optimizer_kwargs)
         return self.optimizer
-    def training_step(self, model, inputs):
+    def training_step(self, *args, **kwargs):
         step = self.state.global_step
-        result = super().training_step(model, inputs)
+        result = super().training_step(*args, **kwargs)
         return result    
 
 
