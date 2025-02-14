@@ -34,7 +34,7 @@ model.config.use_cache=False
 device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(model_id, add_eos_token=True, use_fast=True)
 tokenizer.pad_token = tokenizer.eos_token
-tokenizer.pad_token_id =  tokenizer.eos_token_id
+tokenizer.pad_token_id = tokenizer.eos_token_id
 
 # 加载数据集
 data_file_path = "/users/u202220081001066/datas/single_review_rp_gpt_outputs.json"
@@ -56,11 +56,11 @@ vera_config = VeraConfig(
     vera_dropout=0.05,
     bias="none",
     svd_init=True,
-    lambda_lr_ratio=10.0,
+    lambda_lr_ratio=16.0,
     d_initial=0.1,
     )
 model = get_peft_model(model, vera_config)
-model.print_trainable_parameters()
+print(model.vera_A["default"][:5, :5])
 
 
 output_dir = "/users/u202220081001066/outputs"
@@ -71,12 +71,13 @@ def get_parameter_groups(model, base_lr, lambda_lr_ratio):
     lambda_b_params = []
     other_params = []
     for name, param in model.named_parameters():
-        if 'vera_lambda_d' in name and param.requires_grad:
-            lambda_d_params.append(param)
-        elif 'vera_lambda_b' in name and param.requires_grad:
-            lambda_b_params.append(param)
-        elif param.requires_grad:
-            other_params.append(param)
+        if param.requires_grad:
+            if "vera_lambda_d" in name:
+                lambda_d_params.append(param)
+            elif "vera_lambda_b" in name:
+                lambda_b_params.append(param)
+            else:
+                other_params.append(param)
     return [
         {'params': lambda_d_params, 'lr': base_lr},
         {'params': lambda_b_params, 'lr': base_lr * lambda_lr_ratio},
@@ -131,10 +132,13 @@ trainer = CustomTrainer(
 )
 
 # 训练模型
+optimizer = trainer.create_optimizer()
+for group in optimizer.param_groups:
+    print(f"LR: {group['lr']}, Params: {len(group['params'])}")
 trainer.train()
 
 # 保存和上传 Lora 适配器
-adapter_output_dir = os.path.join(output_dir, "llama3_rmavt_adapter")
+adapter_output_dir = os.path.join(output_dir, "llama3_mmavt_adapter")
 if not os.path.exists(adapter_output_dir):
     os.makedirs(adapter_output_dir)
 
