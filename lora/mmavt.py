@@ -109,16 +109,6 @@ split_data = data['train'].train_test_split(test_size=0.1)
 train_data = split_data["train"]
 test_data = split_data["test"]
 
-# 定义自定义训练器类
-class CustomTrainer(SFTTrainer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.create_optimizer()
-
-    def training_step(self, *args, **kwargs):
-        step = self.state.global_step
-        result = super().training_step(*args, **kwargs)
-        return result
 
 # 进行对比实验
 for config in vera_configs:
@@ -150,7 +140,7 @@ for config in vera_configs:
     )
 
     # 初始化训练器
-    trainer = CustomTrainer(
+    trainer = SFTTrainer(
         model=model,
         train_dataset=train_data,
         eval_dataset=test_data,
