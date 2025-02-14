@@ -175,7 +175,7 @@ class VeraModel(BaseTuner):
         
         # use of persistent to exclude vera_A and vera_B from the state dict if we choose not to save them.
         self.vera_A = BufferDict({adapter_name: vera_A}, persistent=config.save_projection)
-        self.vera_B = BufferDict({adapter_name: vera_B}}, persistent=config.save_projection)
+        self.vera_B = BufferDict({adapter_name: vera_B}, persistent=config.save_projection)
 
 
     def _pre_injection_hook(self, model: nn.Module, config: VeraConfig, adapter_name: str) -> None:
