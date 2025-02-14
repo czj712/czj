@@ -92,7 +92,7 @@ class CustomTrainer(SFTTrainer):
     def create_optimizer(self):
         if self.optimizer is None:
             base_lr = self.args.learning_rate
-            lambda_lr_ratio = self.peft_config.lambda_lr_ratio
+            lambda_lr_ratio = self.vera_config.lambda_lr_ratio
             parameter_groups = get_parameter_groups(self.model, base_lr, lambda_lr_ratio)
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
             self.optimizer = optimizer_cls(parameter_groups, **optimizer_kwargs)
@@ -117,7 +117,7 @@ trainer = CustomTrainer(
         num_train_epochs= 5,
         per_device_train_batch_size=4,
         gradient_accumulation_steps=4,
-        warmup_steps=0.1,
+        warmup_steps=10,
         max_steps=-1,
         learning_rate=4e-3,
         bf16=True,
