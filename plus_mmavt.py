@@ -10,6 +10,7 @@ import json
 import wandb
 import torch.nn as nn
 from dataclasses import dataclass, field
+from typing import Optional
 
 # 定义模型路径
 model_id = "/home/u202220081001066/llama3"
@@ -63,6 +64,10 @@ class MMAVTTrainingArguments(TrainingArguments):
         default=16.0,
         metadata={"help": "lambda参数学习率比例 (lr_lambda_b = base_lr * ratio, lr_lambda_d = base_lr)"}
     )
+    packing: bool = field(
+        default=False,  # 添加缺失的packing参数
+        metadata={"help": "Whether to use packing for SFTTrainer."}
+    )
 
 # 自定义优化器创建函数
 def create_mmavt_optimizer(model, optimizer_cls, optimizer_kwargs, lambda_lr_ratio):
@@ -88,7 +93,7 @@ def create_mmavt_optimizer(model, optimizer_cls, optimizer_kwargs, lambda_lr_rat
             param_groups["lambda_d"]["params"].append(param)
         else:
             # 处理无衰减参数
-            param_groups["base_params"]["params"].append(param)
+            param_groups["base"]["params"].append(param)
 
     base_lr = optimizer_kwargs["lr"]
     optimizer_grouped_parameters = [
@@ -118,7 +123,7 @@ class MMAVTTrainer(SFTTrainer):
         optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
         
         # 创建自定义优化器
-        self.optimizer = create_veraplus_optimizer(
+        self.optimizer = create_mmavt_optimizer(
             self.model,
             optimizer_cls,
             optimizer_kwargs,
@@ -140,7 +145,8 @@ training_args_base = {
     "optim": "paged_adamw_8bit",
     "save_strategy": "epoch",
     "report_to": "wandb",
-    "remove_unused_columns": False
+    "remove_unused_columns": False,
+    "packing": False
 }
 
 # 定义 Vera 配置
@@ -180,11 +186,11 @@ for config in vera_configs:
         config={
             "svd_init": config["svd_init"],
             "lambda_lr_ratio": config["lambda_lr_ratio"],
-            "base_lr": training_args["learning_rate"],
+            "base_lr": training_args_base["learning_rate"],
             "actual_lr_lambda_b": training_args_base["learning_rate"] * config["lambda_lr_ratio"],
             "actual_lr_lambda_d": training_args_base["learning_rate"],
-            "batch_size": training_args["per_device_train_batch_size"],
-            "epochs": training_args["num_train_epochs"]
+            "batch_size": training_args_base["per_device_train_batch_size"],
+            "epochs": training_args_base["num_train_epochs"]
         }
     )
     
@@ -218,7 +224,7 @@ for config in vera_configs:
     # 获取 PEFT 模型
     model = get_peft_model(model, vera_config)
 
-    training_args = VeraPlusTrainingArguments(
+    training_args = MMAVTTrainingArguments(
         **training_args_base,
         lambda_lr_ratio=config["lambda_lr_ratio"]  # 注入比例参数
     )
