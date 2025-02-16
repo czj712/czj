@@ -143,6 +143,7 @@ class VeraModel(BaseTuner):
 
     def _init_vera_A_vera_B(self, config: VeraConfig, adapter_name: str) -> None:
         linear_out_dim, linear_in_dim = self._find_dim(config)
+        device = self.model.device
         W = None
         for name, module in self.model.named_modules():
             if self._check_target_module_exists(config, name):
@@ -158,20 +159,22 @@ class VeraModel(BaseTuner):
             else:
                 W = torch.zeros((linear_out_dim, linear_in_dim))
         if config.svd_init:
+            W = W.float().to(self.model.device)
             U, S, Vh = torch.linalg.svd(W, full_matrices=False)
-            r = min(config.r, len(S))
-            U_r = U[:, :r]
+            r = config.r
+            Vh_r = Vh[:r, :]
             S_sqrt = torch.sqrt(S[:r])
-            vera_A = U_r @ torch.diag(S_sqrt)
-            generator = torch.Generator().manual_seed(config.projection_prng_key)
-            vera_B = _kaiming_init((linear_out_dim, config.r), generator=generator)
+            vera_A = Vh_r * S_sqrt.unsqueeze(-1).to(device)
+            generator = torch.Generator(device=device).manual_seed(config.projection_prng_key)
+            vera_B = _kaiming_init((linear_out_dim, config.r), generator=generator).to(device)
         else:
-            generator = torch.Generator(device="cpu").manual_seed(config.projection_prng_key)
-            vera_A = _kaiming_init((config.r, linear_in_dim), generator=generator)
-            vera_B = _kaiming_init((linear_out_dim, config.r), generator=generator)
+            generator = torch.Generator(device=device).manual_seed(config.projection_prng_key)
+            vera_A = _kaiming_init((config.r, linear_in_dim), generator=generator).to(device)
+            vera_B = _kaiming_init((linear_out_dim, config.r), generator=generator).to(device)
         #维度兼容性处理    
         if vera_A.shape[0] < linear_out_dim:
-            vera_A = torch.cat([vera_A, torch.zeros(linear_out_dim - vera_A.shape[0], config.r)], dim=0)
+            zeros = torch.zeros((linear_out_dim - vera_A.shape[0], config.r), dtype=vera_A.dtype, device=device)
+            vera_A = torch.cat([vera_A, zeros], dim=0)
         
         # use of persistent to exclude vera_A and vera_B from the state dict if we choose not to save them.
         self.vera_A = BufferDict({}, persistent=config.save_projection)
