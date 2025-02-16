@@ -4,7 +4,7 @@ from peft import VeraConfig, get_peft_model, prepare_model_for_kbit_training, Pe
 from trl import SFTTrainer
 import transformers
 from transformers import Trainer
-from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BitsAndBytesConfig, TrainingArguments
 import os
 import json
 import wandb
