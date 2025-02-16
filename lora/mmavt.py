@@ -40,10 +40,9 @@ def preprocess_function(samples):
         return_tensors="pt"
     )
     return {
-        "text": text,
-        "input_ids": tokenized["input_ids"],
-        "attention_mask": tokenized["attention_mask"],
-        "labels": tokenized["input_ids"].clone()
+        "input_ids": tokenized["input_ids"][0],
+        "attention_mask": tokenized["attention_mask"][0],
+        "labels": tokenized["input_ids"][0].clone()
     }
 
 # 应用预处理函数
@@ -150,11 +149,10 @@ for config in vera_configs:
     model = get_peft_model(model, vera_config)
 
     # 初始化训练器
-    trainer = Trainer(
+    trainer = SFTTrainer(
         model=model,
         train_dataset=train_data,
         eval_dataset=test_data,
-        dataset_text_field="text",
         peft_config=vera_config,
         max_seq_length=512,
         tokenizer=tokenizer,
