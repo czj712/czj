@@ -50,7 +50,7 @@ def preprocess_function(samples):
 data = data.map(
     preprocess_function,
     batched=False,  # 逐样本处理避免维度问题
-    remove_columns=["instruction", "input", "output"] 
+    remove_columns=["instruction", "input", "output"])
 
 # 分割数据集
 split_data = data['train'].train_test_split(test_size=0.1)
