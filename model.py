@@ -157,14 +157,14 @@ class VeraModel(BaseTuner):
             if config.svd_init:
                 raise ValueError("No target module found for SVD inintialization")
             else:
-                W = torch.zeros((linear_out_dim, linear_in_dim))
+                W = torch.zeros((linear_out_dim, linear_in_dim), device=device)
         if config.svd_init:
-            W = W.float().to(self.model.device)
+            W = W.float().to(device)
             U, S, Vh = torch.linalg.svd(W, full_matrices=False)
             r = config.r
             Vh_r = Vh[:r, :]
             S_sqrt = torch.sqrt(S[:r])
-            vera_A = Vh_r * S_sqrt.unsqueeze(-1).to(device)
+            vera_A = Vh_r * S_sqrt.unsqueeze(-1)
             generator = torch.Generator(device=device).manual_seed(config.projection_prng_key)
             vera_B = _kaiming_init((linear_out_dim, config.r), generator=generator).to(device)
         else:
