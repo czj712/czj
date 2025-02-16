@@ -63,7 +63,7 @@ training_args = {
     "gradient_accumulation_steps": 4,
     "warmup_steps": 10,
     "max_steps": -1,
-    "learning_rate": 4e-3,
+    "learning_rate": 4e-4,
     "bf16": True,
     "fp16": False,
     "logging_steps": 5,
@@ -137,7 +137,7 @@ for config in vera_configs:
     # 初始化 Vera 配置
     vera_config = VeraConfig(
         target_modules=["q_proj", "o_proj"],
-        r=64,
+        r=128,
         vera_dropout=0.05,
         bias="none",
         svd_init=config["svd_init"],
