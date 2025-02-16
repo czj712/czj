@@ -10,8 +10,6 @@ import json
 import wandb
 import torch.nn as nn
 
-# 初始化 WandB 项目
-wandb.init(project="llama3_ramvat_finetuning")
 
 # 定义模型路径
 model_id = "/home/u202220081001066/llama3"
@@ -21,6 +19,43 @@ data_file_path = "/users/u202220081001066/datas/single_review_rp_gpt_outputs.jso
 
 # 定义输出目录
 output_dir = "llama3_mmavt_adapter"
+
+# 加载分词器
+tokenizer = AutoTokenizer.from_pretrained(model_id, add_eos_token=True, use_fast=True)
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.pad_token_id = tokenizer.eos_token_id
+
+# 加载数据集
+data = load_dataset("json", data_files=data_file_path)
+data = data.shuffle(seed=123)
+
+# 数据预处理函数
+def preprocess_function(samples):
+    text = f"Instruction: {samples['instruction']}\nInput: {samples['input']}\nOutput: {samples['output']}"
+    tokenized = tokenizer(
+        text,
+        padding="max_length",
+        truncation=True,
+        max_length=512,
+        return_tensors="pt"
+    )
+    return {
+        "text": text,
+        "input_ids": tokenized["input_ids"],
+        "attention_mask": tokenized["attention_mask"],
+        "labels": tokenized["input_ids"].clone()
+    }
+
+# 应用预处理函数
+data = data.map(
+    preprocess_function,
+    batched=False,  # 逐样本处理避免维度问题
+    remove_columns=["instruction", "input", "output"] 
+
+# 分割数据集
+split_data = data['train'].train_test_split(test_size=0.1)
+train_data = split_data["train"]
+test_data = split_data["test"]
 
 # 定义训练参数
 training_args = {
@@ -36,7 +71,8 @@ training_args = {
     "output_dir": output_dir,
     "optim": "paged_adamw_8bit",
     "save_strategy": "epoch",
-    "report_to": "wandb"
+    "report_to": "wandb",
+    "remove_unused_columns": False
 }
 
 # 定义 Vera 配置
@@ -63,55 +99,42 @@ vera_configs = [
     }
 ]
 
-# 加载模型
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    use_cache=False,
-    trust_remote_code=True,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
-
-# 定义检查模型层的函数
-def check_model_layers(model):
-    layer_shapes = {}
-    for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            layer_shapes[name] = module.weight.shape
-    return layer_shapes
-
-# 检查模型层
-layer_shapes = check_model_layers(model)
-for name, shape in layer_shapes.items():
-    print(f"Layer: {name}, Shape: {shape}")
-
-# 设置模型配置
-model.config.use_cache = False
-
-# 加载分词器
-tokenizer = AutoTokenizer.from_pretrained(model_id, add_eos_token=True, use_fast=True)
-tokenizer.pad_token = tokenizer.eos_token
-tokenizer.pad_token_id = tokenizer.eos_token_id
-
-# 加载数据集
-data = load_dataset("json", data_files=data_file_path)
-data = data.shuffle(seed=123)
-
-# 数据预处理函数
-def preprocess_function(samples):
-    return tokenizer(samples["instruction"], padding="max_length", truncation=True, max_length=512)
-
-# 应用预处理函数
-data = data.map(preprocess_function, batched=True)
-
-# 分割数据集
-split_data = data['train'].train_test_split(test_size=0.1)
-train_data = split_data["train"]
-test_data = split_data["test"]
-
-
 # 进行对比实验
 for config in vera_configs:
+    # 释放之前模型占用的显存
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    
+    # 初始化 WandB 实验（每次实验独立）
+    wandb.init(
+        project="llama3_mmavt_finetuning",
+        name=config["experiment_name"],
+        config={
+            "svd_init": config["svd_init"],
+            "lambda_lr_ratio": config["lambda_lr_ratio"],
+            "learning_rate": training_args["learning_rate"],
+            "batch_size": training_args["per_device_train_batch_size"],
+            "epochs": training_args["num_train_epochs"]
+        }
+    )
+    
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        use_cache=False,
+        trust_remote_code=True,
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+    # 设置模型配置
+    model.config.use_cache = False
+    
+    experiment_name = config["experiment_name"]
+    svd_init = config["svd_init"]
+    lambda_lr_ratio = config["lambda_lr_ratio"]
+    print(f"\n开始实验：{experiment_name}")
+    print(f"配置参数：svd_init={svd_init}, lambda_lr_ratio={lambda_lr_ratio}")
+
+
     # 初始化 Vera 配置
     vera_config = VeraConfig(
         target_modules=["q_proj", "o_proj"],
@@ -126,32 +149,19 @@ for config in vera_configs:
     # 获取 PEFT 模型
     model = get_peft_model(model, vera_config)
 
-    # 初始化 WandB 实验
-    wandb.init(
-        project="llama3_ramvat_finetuning",
-        name=config["experiment_name"],
-        config={
-            "svd_init": config["svd_init"],
-            "lambda_lr_ratio": config["lambda_lr_ratio"],
-            "learning_rate": training_args["learning_rate"],
-            "batch_size": training_args["per_device_train_batch_size"],
-            "epochs": training_args["num_train_epochs"]
-        }
-    )
-
     # 初始化训练器
-    trainer = SFTTrainer(
+    trainer = Trainer(
         model=model,
         train_dataset=train_data,
         eval_dataset=test_data,
-        dataset_text_field="instruction",
+        dataset_text_field="text",
         peft_config=vera_config,
         max_seq_length=512,
         tokenizer=tokenizer,
         args=transformers.TrainingArguments(**training_args),
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
     )
-
+    print(f"开始训练实验：{experiment_name}")
     # 训练模型
     trainer.train()
 
@@ -159,8 +169,10 @@ for config in vera_configs:
     adapter_output_dir = os.path.join(output_dir, config["experiment_name"])
     if not os.path.exists(adapter_output_dir):
         os.makedirs(adapter_output_dir)
+    print(f"保存模型到：{adapter_output_dir}")
     trainer.model.save_pretrained(adapter_output_dir)
     tokenizer.save_pretrained(adapter_output_dir)
 
     # 结束当前 WandB 实验
     wandb.finish()
+    print(f"实验 {experiment_name} 完成！\n")
