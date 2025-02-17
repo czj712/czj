@@ -1,7 +1,7 @@
 import torch
 from datasets import load_dataset
 from peft import VeraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
-from trl import SFTTrainer
+from trl import SFTTrainer, SFTConfig
 import transformers
 from transformers import Trainer
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, BitsAndBytesConfig, TrainingArguments
@@ -59,7 +59,7 @@ test_data = split_data["test"]
 
 
 @dataclass
-class MMAVTTrainingArguments(TrainingArguments):
+class MMAVTTrainingArguments(SFTConfig):
     lambda_lr_ratio: Optional[float] = field(
         default=16.0,
         metadata={"help": "lambda参数学习率比例 (lr_lambda_b = base_lr * ratio, lr_lambda_d = base_lr)"}
@@ -68,15 +68,17 @@ class MMAVTTrainingArguments(TrainingArguments):
         default=False,  # 添加缺失的packing参数
         metadata={"help": "Whether to use packing for SFTTrainer."}
     )
+    dataset_num_proc: Optional[int] = field(
+        default=None,
+        metadata={"help": "Number of processes to use for dataset preprocessing."}
+    )
 
 # 自定义优化器创建函数
 def create_mmavt_optimizer(model, optimizer_cls, optimizer_kwargs, lambda_lr_ratio):
     """
     创建支持 VeRA 双学习率的优化器
     """
-    decay_parameters = get_parameter_names(model, ALL_LAYERNORM_LAYERS)
-    decay_parameters = [name for name in decay_parameters if "bias" not in name]
-    
+
     param_groups = {
         "base": {"params": [], "weight_decay": optimizer_kwargs.get("weight_decay", 0.0)},
         "lambda_b": {"params": [], "weight_decay": 0.0},  # 通常B参数不设权重衰减
@@ -99,7 +101,7 @@ def create_mmavt_optimizer(model, optimizer_cls, optimizer_kwargs, lambda_lr_rat
     optimizer_grouped_parameters = [
         {
             "params": param_groups["base"]["params"],
-            "weight_decay": param_groups["base_params"]["weight_decay"],
+            "weight_decay": param_groups["base"]["weight_decay"],
             "lr": base_lr
         },
         {
