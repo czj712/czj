@@ -56,22 +56,20 @@ def extract_answer(text):
 
 def evaluate_gsm8k():
     dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    results = []
-    
-    with torch.no_grad(), open(output_file, "w") as f_out:
-        for batch in tqdm(dataloader, desc="Evaluating"):
-            questions = batch["question"]
-            true_answers = [extract_answer(a) for a in batch["answer"]]
-            problem_ids = batch["problem_id"]
+    correct = 0
+    total = 0
+    for batch in tqdm(dataloader, desc="Evaluating"):
+        questions = batch["question"]
+        true_answers = [extract_answer(a) for a in batch["answer"]]
             
-            # 生成带CoT提示的问题
-            """prompted_questions = [
+        # 生成带CoT提示的问题
+        """prompted_questions = [
                 f"Solve this problem step by step: {q}\nLet's think step by step."
                 for q in questions
             ]"""
             
             # 批量生成
-            inputs = tokenizer(
+        inputs = tokenizer(
                 questions,
                 #prompted_questions,
                 return_tensors="pt",
@@ -80,7 +78,7 @@ def evaluate_gsm8k():
                 max_length=max_length
             ).to(device)
             
-            outputs = model.generate(
+        outputs = model.generate(
                 **inputs,
                 max_new_tokens=256,  # 控制生成长度
                 temperature=0.1,     # 降低随机性
@@ -88,36 +86,22 @@ def evaluate_gsm8k():
             )
             
             # 解码并处理答案
-            decoded_answers = tokenizer.batch_decode(
+        decoded_answers = tokenizer.batch_decode(
                 outputs, 
                 skip_special_tokens=True
             )
             
             # 处理每个样本
-            for pid, q, pred, true in zip(problem_ids, questions, decoded_answers, true_answers):
-                pred_answer = extract_answer(pred)
-                is_correct = (pred_answer == true) if (pred_answer and true) else False
-                
-                # 记录结果
-                result = {
-                    "problem_id": pid,
-                    "question": q,
-                    "predicted": pred,
-                    "pred_answer": pred_answer,
-                    "true_answer": true,
-                    "correct": is_correct
-                }
-                results.append(result)
-                
-                # 写入文件
-                f_out.write(json.dumps(result, ensure_ascii=False) + "\n")
-    
+        for pred, true in zip(decoded_answers, true_answers):
+            pred_answer = extract_answer(pred)
+            if pred_answer is not None and pred_answer == true:
+                correct += 1
+            total += 1
     # 计算准确率
-    correct = sum(r["correct"] for r in results)
-    accuracy = correct / len(results)
+    accuracy = correct / total
     
     print(f"\nFinal Accuracy: {accuracy*100:.2f}%")
-    print(f"Results saved to {output_file}")
+ 
     
     return accuracy
 
