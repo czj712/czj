@@ -147,6 +147,7 @@ training_args_base = {
     "optim": "paged_adamw_8bit",
     "save_strategy": "epoch",
     "report_to": "wandb",
+    "max_steps": 500,
     "remove_unused_columns": False,
     "packing": False
 }
@@ -172,12 +173,12 @@ vera_configs = [
         "svd_init": True,
         "lambda_lr_ratio": 8.0,
         "experiment_name": "8_double_lr"
-    }，
-      {
+    },
+    {
         "svd_init": True,
         "lambda_lr_ratio": 16.0,
         "experiment_name": "16_double_lr"
-    }，
+    },
     {
         "svd_init": True,
         "lambda_lr_ratio": 32.0,
