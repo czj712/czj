@@ -35,12 +35,12 @@ print(f"Loaded {len(test_dataset)} test examples")
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 tokenizer.pad_token = tokenizer.eos_token  # 确保设置pad token
-
 model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
-    device_map="auto",
-).eval()
+        model_id,
+        use_cache=False,
+        trust_remote_code=True,
+        torch_dtype=torch.float16,
+        device_map="auto").eval()
 
 # 答案处理函数
 def extract_answer(text):
