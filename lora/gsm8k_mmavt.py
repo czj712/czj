@@ -154,7 +154,7 @@ for config in vera_configs:
         train_dataset=train_data,
         eval_dataset=test_data,
         peft_config=vera_config,
-        max_seq_length=512,
+        max_length=512,
         max_steps=2000,
         tokenizer=tokenizer,
         args=transformers.TrainingArguments(**training_args),
