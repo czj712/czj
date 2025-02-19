@@ -247,7 +247,7 @@ for config in vera_configs:
         train_dataset=train_data,
         eval_dataset=test_data,
         peft_config=vera_config,
-        max_length=512,
+        max_seq_length=512,
         tokenizer=tokenizer,
         args=training_args,
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
