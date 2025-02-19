@@ -4,8 +4,10 @@ import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from torch.utils.data import Dataset, DataLoader
+from peft import PeftModel, PeftConfig
 
-model_id = "/home/u202220081001066/llama3"
+base_model_id = "/home/u202220081001066/llama3"
+peft_model_path = "/users/u202220081001066/czj/lora/LLaMA3_GRPO/checkpoint-1400"
 test_data_path = "/home/u202220081001066/grade-school-math/grade_school_math/data/test.jsonl"
 output_file = "llama3_gsm8k_eval_results.txt"
 batch_size = 4 
@@ -33,14 +35,26 @@ class GSM8KDataset(Dataset):
 test_dataset = GSM8KDataset(test_data_path)
 print(f"Loaded {len(test_dataset)} test examples")
 
-tokenizer = AutoTokenizer.from_pretrained(model_id)
+tokenizer = AutoTokenizer.from_pretrained(base_model_id)
 tokenizer.pad_token = tokenizer.eos_token  # 确保设置pad token
-model = AutoModelForCausalLM.from_pretrained(
-        model_id,
+base_model = AutoModelForCausalLM.from_pretrained(
+        base_model_id,
         use_cache=False,
         trust_remote_code=True,
         torch_dtype=torch.float16,
-        device_map="auto").eval()
+        device_map="auto")
+
+print("加载base_model完毕！")
+print("正在加载peft_model...")
+model = PeftModel.from_pretrained(
+    base_model,
+    peft_model_path,
+    device_map="auto",
+    torch_dtype=torch.float16
+)
+
+merged_model = model.merge_and_unload()
+print("合并模型完成！")
 
 # 答案处理函数
 def extract_answer(text):
@@ -78,7 +92,7 @@ def evaluate_gsm8k():
                 max_length=max_length
             ).to(device)
             
-        outputs = model.generate(
+        outputs = merged_model.generate(
                 **inputs,
                 max_new_tokens=256,  # 控制生成长度
                 temperature=0.1,     # 降低随机性
