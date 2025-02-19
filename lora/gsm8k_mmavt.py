@@ -31,7 +31,7 @@ data = data.shuffle(seed=123)
 
 # 数据预处理函数
 def preprocess_function(samples):
-    text = f"Question: {samples['question']}\nAnswer: {samples['answer']}"
+    text = f"Question: {sample['question']}\nAnswer: {sample['answer']}"
     tokenized = tokenizer(
         text,
         padding="max_length",
@@ -154,8 +154,7 @@ for config in vera_configs:
         train_dataset=train_data,
         eval_dataset=test_data,
         peft_config=vera_config,
-        max_length=512,
-        max_steps=2000,
+        max_seq_length=512,
         tokenizer=tokenizer,
         args=transformers.TrainingArguments(**training_args),
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
