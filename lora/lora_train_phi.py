@@ -50,7 +50,7 @@ test_data = data["test"]
 # PeFT 配置
 lora_config = LoraConfig(
     r=16,
-    lora_alpha=128,
+    lora_alpha=32,
     target_modules=["q_proj", "o_proj"],
     lora_dropout=0.05,
     bias="none",
@@ -79,7 +79,7 @@ trainer = SFTTrainer(
         per_device_train_batch_size=4,
         gradient_accumulation_steps=4,
         warmup_steps=1,
-        max_steps=-1,
+        max_steps=800,
         learning_rate=4e-4,
         bf16=True,
         logging_steps=1,
