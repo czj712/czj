@@ -49,9 +49,9 @@ test_data = data["test"]
 
 # PeFT 配置
 lora_config = LoraConfig(
-    r=64,
+    r=16,
     lora_alpha=128,
-    target_modules=["q_proj", "k_proj", "v_proj","o_proj"],
+    target_modules=["q_proj", "o_proj"],
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM"
